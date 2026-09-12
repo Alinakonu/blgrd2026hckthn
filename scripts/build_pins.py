@@ -99,6 +99,18 @@ def main():
         status = "ok" if soil else "no data returned"
         print(f"  {name:<12} {elapsed:>6.1f}s  {status}")
 
+    # Never let a rate-limited run replace good committed data with a short or
+    # empty file. Open-Meteo starts returning 429s well before all pins finish.
+    if OUTPUT.exists():
+        existing = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        if len(records) < len(existing):
+            print(
+                f"\nRefusing to write: got {len(records)} records but "
+                f"data/{OUTPUT.name} already holds {len(existing)}. "
+                "Existing file left untouched — retry when the rate limit clears."
+            )
+            return
+
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(records, indent=2), encoding="utf-8")
     print(f"\nWrote {len(records)} records to data/{OUTPUT.name}")
