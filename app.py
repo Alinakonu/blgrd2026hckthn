@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import requests
 import streamlit as st
@@ -290,6 +291,193 @@ a { color: var(--accent) !important; }
 [data-testid="stSidebar"] .stMarkdown p {
   line-height: 1.65;
 }
+
+/* Sidebar — stronger field-day wash */
+[data-testid="stSidebar"] {
+  background: linear-gradient(
+    185deg,
+    rgba(244, 247, 244, 0.98) 0%,
+    rgba(255, 252, 248, 0.94) 55%,
+    rgba(232, 240, 234, 0.96) 100%
+  ) !important;
+  border-right: 1px solid var(--rule) !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+  font-family: "Fraunces", Georgia, serif !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stSidebar"] .stSelectbox label,
+[data-testid="stSidebar"] .stCheckbox label,
+[data-testid="stSidebar"] label {
+  color: var(--ink-soft) !important;
+  font-weight: 500 !important;
+}
+
+.sidebar-brand {
+  margin: 0.25rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: linear-gradient(
+    145deg,
+    rgba(47, 95, 70, 0.12) 0%,
+    rgba(255, 252, 248, 0.85) 100%
+  );
+  border: 1px solid var(--rule);
+  box-shadow: 0 8px 20px rgba(27, 45, 36, 0.05);
+}
+.sidebar-brand .eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+}
+.sidebar-brand .title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.sidebar-brand .sub {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.pitch-card {
+  margin: 0.6rem 0 0.9rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 14px;
+  background: rgba(255, 252, 248, 0.75);
+  border: 1px solid var(--rule);
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.pitch-card strong { color: var(--accent); }
+
+.outlook-card {
+  margin: 0.35rem 0 0.85rem;
+  padding: 1rem 1.05rem 0.95rem;
+  border-radius: 18px;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 252, 248, 0.95) 0%,
+    rgba(232, 240, 234, 0.75) 100%
+  );
+  border: 1px solid var(--rule);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 12px 28px rgba(27, 45, 36, 0.06);
+}
+.outlook-card .eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+.outlook-card .period {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+}
+.outlook-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.outlook-metric {
+  padding: 0.65rem 0.7rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--rule);
+}
+.outlook-metric .label {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+.outlook-metric .value {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.2rem;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.outlook-metric .sub {
+  margin-top: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+.outlook-range {
+  margin-top: 0.45rem;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(47, 95, 70, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+.outlook-range > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.outlook-note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.status-pill {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.outlook-range > i {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 14px;
+  background: var(--ink);
+  opacity: 0.55;
+  border-radius: 2px;
+  transform: translateX(-1px);
+}
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  margin: 0.15rem 0 0.55rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.legend-row span::before {
+  content: "";
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.legend-good::before { background: #2f5f46; }
+.legend-avg::before { background: #c4a35a; }
+.legend-bad::before { background: #a84840; }
+.legend-base::before { background: #8fa898; }
 </style>
 """
 
@@ -313,6 +501,340 @@ def pin_by_name(pins: list[dict], name: str) -> dict:
 
 def delta(a: float, b: float) -> float:
     return round(b - a, 1)
+
+
+# Traffic-light palette (theme-aligned): green good · gold average · red bad · sage baseline
+COLOR_GOOD = "#2f5f46"
+COLOR_AVG = "#c4a35a"
+COLOR_BAD = "#a84840"
+COLOR_BASE = "#8fa898"
+
+
+def _status_higher_worse(recent: float, baseline: float, tol_frac: float = 0.05) -> str:
+    """Compare recent vs baseline when an increase is worse (heat, ET0, deficit magnitude)."""
+    span = max(abs(baseline), 1.0)
+    if recent > baseline + span * tol_frac:
+        return "Worse than baseline"
+    if recent < baseline - span * tol_frac:
+        return "Better than baseline"
+    return "Near baseline"
+
+
+def _status_higher_better(recent: float, baseline: float, tol_frac: float = 0.05) -> str:
+    """Compare recent vs baseline when an increase is better (summer rain, water balance)."""
+    span = max(abs(baseline), 1.0)
+    if recent > baseline + span * tol_frac:
+        return "Better than baseline"
+    if recent < baseline - span * tol_frac:
+        return "Worse than baseline"
+    return "Near baseline"
+
+
+def _status_color(status: str) -> str:
+    if status.startswith("Better"):
+        return COLOR_GOOD
+    if status.startswith("Worse"):
+        return COLOR_BAD
+    return COLOR_AVG
+
+
+def score_legend_html() -> str:
+    return (
+        '<div class="legend-row">'
+        '<span class="legend-good">Better than baseline</span>'
+        '<span class="legend-avg">Near baseline</span>'
+        '<span class="legend-bad">Worse than baseline</span>'
+        '<span class="legend-base">Baseline</span>'
+        "</div>"
+    )
+
+
+def _status_scale() -> alt.Scale:
+    return alt.Scale(
+        domain=[
+            "Baseline",
+            "Better than baseline",
+            "Near baseline",
+            "Worse than baseline",
+        ],
+        range=[COLOR_BASE, COLOR_GOOD, COLOR_AVG, COLOR_BAD],
+    )
+
+
+def water_balance_chart(record: dict) -> alt.Chart:
+    """Grouped bars: sage baseline; recent colored vs that pin's baseline."""
+    base = record["baseline"]
+    recent = record["recent"]
+    metrics = [
+        (
+            "Summer rain",
+            base["summer_rain_mm"],
+            recent["summer_rain_mm"],
+            _status_higher_better(recent["summer_rain_mm"], base["summer_rain_mm"]),
+        ),
+        (
+            "Crop demand (ET0)",
+            base["summer_water_demand_mm"],
+            recent["summer_water_demand_mm"],
+            _status_higher_worse(
+                recent["summer_water_demand_mm"], base["summer_water_demand_mm"]
+            ),
+        ),
+        (
+            "Summer balance",
+            base["summer_water_balance_mm"],
+            recent["summer_water_balance_mm"],
+            _status_higher_better(
+                recent["summer_water_balance_mm"], base["summer_water_balance_mm"]
+            ),
+        ),
+    ]
+    rows = []
+    for label, b_val, r_val, status in metrics:
+        rows.append(
+            {
+                "metric": label,
+                "period": "Baseline",
+                "value": b_val,
+                "status": "Baseline",
+            }
+        )
+        rows.append(
+            {
+                "metric": label,
+                "period": "Recent",
+                "value": r_val,
+                "status": status,
+            }
+        )
+    df = pd.DataFrame(rows)
+    return (
+        alt.Chart(df)
+        .mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5, size=28)
+        .encode(
+            x=alt.X(
+                "metric:N",
+                title=None,
+                sort=["Summer rain", "Crop demand (ET0)", "Summer balance"],
+                axis=alt.Axis(labelAngle=0, labelFontSize=12),
+            ),
+            xOffset=alt.XOffset("period:N", sort=["Baseline", "Recent"]),
+            y=alt.Y("value:Q", title="mm"),
+            color=alt.Color("status:N", scale=_status_scale(), legend=None),
+            tooltip=[
+                alt.Tooltip("metric:N", title="Metric"),
+                alt.Tooltip("period:N", title="Period"),
+                alt.Tooltip("value:Q", title="mm", format=".1f"),
+                alt.Tooltip("status:N", title="vs baseline"),
+            ],
+        )
+        .properties(height=280)
+        .configure_axis(
+            labelColor="#3e5349",
+            titleColor="#6a7c72",
+            gridColor="rgba(27, 45, 36, 0.08)",
+            domainColor="rgba(27, 45, 36, 0.15)",
+        )
+        .configure_view(strokeWidth=0)
+    )
+
+
+def heat_chart(record: dict) -> alt.Chart:
+    base = record["baseline"]
+    recent = record["recent"]
+    metrics = [
+        (
+            "Days ≥30°C",
+            base["hot_days_30"],
+            recent["hot_days_30"],
+            _status_higher_worse(recent["hot_days_30"], base["hot_days_30"]),
+        ),
+        (
+            "Days ≥35°C",
+            base["hot_days_35"],
+            recent["hot_days_35"],
+            _status_higher_worse(recent["hot_days_35"], base["hot_days_35"]),
+        ),
+    ]
+    rows = []
+    for label, b_val, r_val, status in metrics:
+        rows.append(
+            {
+                "metric": label,
+                "period": "Baseline",
+                "value": b_val,
+                "status": "Baseline",
+            }
+        )
+        rows.append(
+            {
+                "metric": label,
+                "period": "Recent",
+                "value": r_val,
+                "status": status,
+            }
+        )
+    df = pd.DataFrame(rows)
+    return (
+        alt.Chart(df)
+        .mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5, size=36)
+        .encode(
+            x=alt.X(
+                "metric:N",
+                title=None,
+                sort=["Days ≥30°C", "Days ≥35°C"],
+                axis=alt.Axis(labelAngle=0, labelFontSize=12),
+            ),
+            xOffset=alt.XOffset("period:N", sort=["Baseline", "Recent"]),
+            y=alt.Y("value:Q", title="days / year"),
+            color=alt.Color("status:N", scale=_status_scale(), legend=None),
+            tooltip=[
+                alt.Tooltip("metric:N", title="Metric"),
+                alt.Tooltip("period:N", title="Period"),
+                alt.Tooltip("value:Q", title="days", format=".1f"),
+                alt.Tooltip("status:N", title="vs baseline"),
+            ],
+        )
+        .properties(height=250)
+        .configure_axis(
+            labelColor="#3e5349",
+            titleColor="#6a7c72",
+            gridColor="rgba(27, 45, 36, 0.08)",
+            domainColor="rgba(27, 45, 36, 0.15)",
+        )
+        .configure_view(strokeWidth=0)
+    )
+
+
+def crop_exposure_chart(assessment: dict) -> alt.Chart:
+    """Horizontal exposure scores — green / gold / red by band."""
+    band_label = {
+        "high": "High (stressed)",
+        "moderate": "Moderate (watch)",
+        "stable": "Stable",
+        "improving": "Improving",
+        "low": "Low",
+    }
+    rows = []
+    for entry in assessment["crops"]:
+        band = entry["exposure_band"]
+        rows.append(
+            {
+                "crop": entry["label"],
+                "score": entry["exposure_score"],
+                "band": band_label.get(band, band),
+            }
+        )
+    df = pd.DataFrame(rows).sort_values("score", ascending=True)
+    return (
+        alt.Chart(df)
+        .mark_bar(cornerRadiusEnd=6, size=18)
+        .encode(
+            x=alt.X("score:Q", title="Exposure score"),
+            y=alt.Y("crop:N", sort=list(df["crop"]), title=None),
+            color=alt.Color(
+                "band:N",
+                scale=alt.Scale(
+                    domain=[
+                        "High (stressed)",
+                        "Moderate (watch)",
+                        "Stable",
+                        "Improving",
+                        "Low",
+                    ],
+                    range=[
+                        COLOR_BAD,
+                        COLOR_AVG,
+                        COLOR_GOOD,
+                        COLOR_GOOD,
+                        COLOR_GOOD,
+                    ],
+                ),
+                legend=alt.Legend(title=None, orient="bottom", direction="horizontal"),
+            ),
+            tooltip=[
+                alt.Tooltip("crop:N", title="Crop"),
+                alt.Tooltip("score:Q", title="Score", format=".2f"),
+                alt.Tooltip("band:N", title="Band"),
+            ],
+        )
+        .properties(height=max(180, 32 * len(df)))
+        .configure_axis(
+            labelColor="#3e5349",
+            titleColor="#6a7c72",
+            gridColor="rgba(27, 45, 36, 0.08)",
+            domainColor="rgba(27, 45, 36, 0.15)",
+        )
+        .configure_view(strokeWidth=0)
+        .configure_legend(
+            labelColor="#3e5349",
+            titleColor="#6a7c72",
+            symbolType="circle",
+        )
+    )
+
+
+def outlook_card_html(record: dict) -> str:
+    """Formatted outlook panel with range bars vs recent climate."""
+    outlook = record.get("outlook") or {}
+    if not outlook:
+        return ""
+    recent = record["recent"]
+    lo, hi = outlook["hot_days_30_range"]
+    med = outlook.get("hot_days_30_median", (lo + hi) / 2)
+    rain_lo, rain_hi = outlook["precip_mm_range"]
+    rain_med = outlook.get("precip_mm_median", (rain_lo + rain_hi) / 2)
+    recent_hot = recent["hot_days_30"]
+    recent_rain = recent["precip_mm"]
+
+    heat_status = _status_higher_worse(med, recent_hot, tol_frac=0.08)
+    heat_color = _status_color(heat_status)
+    rain_mid = rain_med
+    rain_status = _status_higher_better(rain_mid, recent_rain, tol_frac=0.08)
+    rain_color = _status_color(rain_status)
+
+    heat_scale = max(hi, recent_hot, 60)
+    rain_scale = max(rain_hi, recent_rain, 800)
+    heat_width = max(8, min(100, (hi - lo) / heat_scale * 100))
+    heat_left = max(0, min(92, lo / heat_scale * 100))
+    rain_width = max(8, min(100, (rain_hi - rain_lo) / rain_scale * 100))
+    rain_left = max(0, min(92, rain_lo / rain_scale * 100))
+    heat_marker = max(0, min(98, recent_hot / heat_scale * 100))
+    rain_marker = max(0, min(98, recent_rain / rain_scale * 100))
+
+    models = ", ".join(outlook.get("models", [])[:3]) or "multi-model"
+    note = outlook.get("confidence", "multi-model range, illustrative not a forecast")
+    n_models = len(outlook.get("models") or [])
+
+    return f"""
+<div class="outlook-card">
+  <div class="eyebrow">Outlook · model range</div>
+  <div class="period">{outlook.get("period", "—")}</div>
+  <div class="outlook-grid">
+    <div class="outlook-metric">
+      <div class="label">Days ≥30°C</div>
+      <div class="value" style="color:{heat_color}">{lo:.0f} – {hi:.0f}</div>
+      <div class="sub">median <strong>{med:.0f}</strong> · recent {recent_hot:.0f}</div>
+      <div class="status-pill" style="background:{heat_color}22;color:{heat_color};border-color:{heat_color}55">{heat_status}</div>
+      <div class="outlook-range">
+        <span style="width:{heat_width}%; margin-left:{heat_left}%; background:{heat_color};"></span>
+        <i style="left:{heat_marker}%;" title="Recent"></i>
+      </div>
+    </div>
+    <div class="outlook-metric">
+      <div class="label">Annual rain (mm)</div>
+      <div class="value" style="color:{rain_color}">{rain_lo:.0f} – {rain_hi:.0f}</div>
+      <div class="sub">median <strong>{rain_med:.0f}</strong> · recent {recent_rain:.0f}</div>
+      <div class="status-pill" style="background:{rain_color}22;color:{rain_color};border-color:{rain_color}55">{rain_status}</div>
+      <div class="outlook-range">
+        <span style="width:{rain_width}%; margin-left:{rain_left}%; background:{rain_color};"></span>
+        <i style="left:{rain_marker}%;" title="Recent"></i>
+      </div>
+    </div>
+  </div>
+  <div class="outlook-note">{note}. {n_models} models ({models}). Marker = recent climate.</div>
+</div>
+"""
 
 
 def headline_for(record: dict, assessment: dict) -> str:
@@ -529,18 +1051,32 @@ def main() -> None:
     )
 
     with st.sidebar:
-        st.header("Field")
+        st.markdown(
+            """
+            <div class="sidebar-brand">
+              <div class="eyebrow">SoilShift × AgriSense</div>
+              <div class="title">Field day</div>
+              <div class="sub">Sage mist briefing · cached Serbia pins · offline-first</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         name = st.selectbox(
             "Demo pin",
             ordered,
             index=0,
             help="Cached pins from data/pins.json — no live API on click.",
         )
-        st.markdown("**Pitch path**")
         st.markdown(
-            "1. **Novi Sad** — rain gauge looks fine\n"
-            "2. **Zrenjanin** — worst summer deficit\n"
-            "3. **Belgrade / Nis** — stable counter-example"
+            """
+            <div class="pitch-card">
+              <strong>Pitch path</strong><br/>
+              1. <strong>Novi Sad</strong> — rain gauge looks fine<br/>
+              2. <strong>Zrenjanin</strong> — worst summer deficit<br/>
+              3. <strong>Belgrade / Nis</strong> — stable counter-example
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         use_llm = st.toggle(
             "Call Grok for advice",
@@ -590,28 +1126,24 @@ def main() -> None:
     with left:
         st.markdown("#### Your rain gauge can lie")
         st.caption(
-            "Annual totals may look stable while June–August rainfall minus ET0 worsens."
+            "Annual totals may look stable while June–August rainfall minus ET0 worsens. "
+            "Recent bars are colored vs that pin’s own baseline."
         )
-        st.bar_chart(water_balance_frame(record), height=280)
+        st.markdown(score_legend_html(), unsafe_allow_html=True)
+        st.altair_chart(water_balance_chart(record), use_container_width=True)
 
         st.markdown("#### Heat")
-        st.bar_chart(heat_frame(record), height=220)
+        st.caption("More hot days than baseline reads as worse (red).")
+        st.altair_chart(heat_chart(record), use_container_width=True)
 
     with right:
         st.markdown("#### Signals")
         for sig in record.get("signals", []):
             st.markdown(f"- {SIGNAL_TEXT.get(sig, sig)}")
 
-        outlook = record.get("outlook") or {}
-        if outlook:
-            lo, hi = outlook["hot_days_30_range"]
-            st.markdown("#### Outlook (model range)")
-            st.info(
-                f"**{outlook['period']}** days ≥30°C: **{lo} – {hi}** "
-                f"(median {outlook.get('hot_days_30_median', '—')}). "
-                f"Rain {outlook['precip_mm_range'][0]}–{outlook['precip_mm_range'][1]} mm. "
-                f"_{outlook.get('confidence', '')}_"
-            )
+        if record.get("outlook"):
+            st.markdown("#### Outlook")
+            st.markdown(outlook_card_html(record), unsafe_allow_html=True)
 
         st.markdown("#### Map")
         st.map(
@@ -641,6 +1173,7 @@ def main() -> None:
             )
             st.caption(f"Adaptation candidates: {alts}")
 
+    st.altair_chart(crop_exposure_chart(assessment), use_container_width=True)
     st.dataframe(crop_table(assessment), use_container_width=True, hide_index=True)
 
     thermal = assessment.get("thermal") or {}
