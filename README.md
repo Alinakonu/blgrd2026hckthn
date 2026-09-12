@@ -18,7 +18,15 @@ streamlit run app.py
 4. Click **Generate plan** (offline plan works without an API key).
 5. Switch to **Zrenjanin** (worst case), then **Belgrade** or **Nis** (stable counter-example).
 
-Optional live LLM: set `XAI_API_KEY` (or `GROK_API_KEY`) and toggle **Call Grok for advice**.
+Optional live LLM (Grok via xAI):
+
+```bash
+# terminal (recommended for demos)
+export XAI_API_KEY="xai-..."   # from https://console.x.ai
+streamlit run app.py
+```
+
+Or paste the key in the sidebar field **xAI API key** (session-only, not written to disk), then toggle **Call Grok for advice**.
 
 ## What is in the box
 
@@ -45,7 +53,7 @@ Optional live LLM: set `XAI_API_KEY` (or `GROK_API_KEY`) and toggle **Call Grok 
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `XAI_API_KEY` / `GROK_API_KEY` | No | Enables live Grok plan |
+| `XAI_API_KEY` / `GROK_API_KEY` | No | Enables live Grok plan (or paste in the sidebar) |
 | `XAI_MODEL` | No | Default `grok-2-latest` |
 | `XAI_API_URL` | No | Default `https://api.x.ai/v1/chat/completions` |
 

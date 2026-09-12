@@ -197,11 +197,7 @@ iframe[title="streamlit_keplergl.st_keplergl"] {
 [data-testid="stArrowVegaLiteChart"],
 div[data-testid="stPlotlyChart"],
 div[data-testid="stMap"] {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 252, 248, 0.92) 0%,
-    rgba(255, 255, 255, 0.82) 100%
-  );
+  background: #ffffff !important;
   border: 1px solid var(--rule);
   border-radius: 20px;
   padding: 0.65rem 0.7rem 0.45rem;
@@ -212,14 +208,17 @@ div[data-testid="stMap"] {
   max-width: 100%;
 }
 
-/* Keep Vega SVG inside the white panel — no eclipse over the right column */
+/* Keep Vega SVG inside the white panel — no green wash / no right-column eclipse */
 [data-testid="stVegaLiteChart"] > div,
 [data-testid="stArrowVegaLiteChart"] > div,
 [data-testid="stVegaLiteChart"] canvas,
 [data-testid="stArrowVegaLiteChart"] canvas,
 [data-testid="stVegaLiteChart"] svg,
-[data-testid="stArrowVegaLiteChart"] svg {
+[data-testid="stArrowVegaLiteChart"] svg,
+[data-testid="stVegaLiteChart"] .vega-embed,
+[data-testid="stArrowVegaLiteChart"] .vega-embed {
   max-width: 100% !important;
+  background: #ffffff !important;
 }
 
 [data-testid="stHorizontalBlock"] {
@@ -253,10 +252,12 @@ div[data-testid="stAlert"] {
   background: var(--warm-mist) !important;
 }
 
-/* Buttons */
-.stButton > button {
+/* Buttons — primary label always white on sage */
+.stButton > button,
+.stButton > button[kind="primary"],
+.stButton > button[data-testid="baseButton-primary"] {
   background: var(--accent) !important;
-  color: var(--accent-ink) !important;
+  color: #ffffff !important;
   border: none !important;
   border-radius: 999px !important;
   font-family: "Figtree", sans-serif !important;
@@ -267,16 +268,32 @@ div[data-testid="stAlert"] {
   transition: transform 0.18s ease, background 0.18s ease;
 }
 
+.stButton > button p,
+.stButton > button span,
+.stButton > button[kind="primary"] p,
+.stButton > button[kind="primary"] span,
+.stButton > button[data-testid="baseButton-primary"] p,
+.stButton > button[data-testid="baseButton-primary"] span {
+  color: #ffffff !important;
+}
+
 .stButton > button:hover {
   background: #264d39 !important;
+  color: #ffffff !important;
   transform: translateY(-1px);
 }
 
-.stButton > button[kind="secondary"] {
+.stButton > button[kind="secondary"],
+.stButton > button[data-testid="baseButton-secondary"] {
   background: rgba(255, 255, 255, 0.7) !important;
   color: var(--ink) !important;
   border: 1px solid var(--rule-strong) !important;
   box-shadow: none !important;
+}
+
+.stButton > button[kind="secondary"] p,
+.stButton > button[kind="secondary"] span {
+  color: var(--ink) !important;
 }
 
 /* Inputs / selects */
@@ -656,7 +673,8 @@ def _paired_bar_chart(
             gridColor="rgba(27, 45, 36, 0.08)",
             domainColor="rgba(27, 45, 36, 0.15)",
         )
-        .configure_view(strokeWidth=0)
+        .configure(background="white")
+        .configure_view(strokeWidth=0, fill="white")
     )
 
 
@@ -832,7 +850,8 @@ def crop_exposure_chart(assessment: dict) -> alt.Chart:
             gridColor="rgba(27, 45, 36, 0.08)",
             domainColor="rgba(27, 45, 36, 0.15)",
         )
-        .configure_view(strokeWidth=0)
+        .configure(background="white")
+        .configure_view(strokeWidth=0, fill="white")
         .configure_legend(
             labelColor="#3e5349",
             titleColor="#6a7c72",
@@ -1077,8 +1096,16 @@ def offline_action_plan(record: dict, assessment: dict) -> str:
     return "\n".join(lines)
 
 
+def resolve_xai_key() -> str | None:
+    """Sidebar paste wins for the session; else env XAI_API_KEY / GROK_API_KEY."""
+    keyed = (st.session_state.get("xai_api_key") or "").strip()
+    if keyed:
+        return keyed
+    return os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY") or None
+
+
 def call_grok(messages: list[dict]) -> str:
-    api_key = os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY")
+    api_key = resolve_xai_key()
     if not api_key:
         raise RuntimeError("No XAI_API_KEY / GROK_API_KEY set")
 
@@ -1145,12 +1172,25 @@ def main() -> None:
             """,
             unsafe_allow_html=True,
         )
+        pasted = st.text_input(
+            "xAI API key",
+            value=st.session_state.get("xai_api_key", ""),
+            type="password",
+            help="Paste a key from https://console.x.ai — stored only in this browser session. "
+            "Or export XAI_API_KEY before `streamlit run`.",
+            placeholder="xai-…",
+        )
+        if pasted.strip():
+            st.session_state["xai_api_key"] = pasted.strip()
+        elif "xai_api_key" in st.session_state and not pasted:
+            # cleared by user
+            st.session_state.pop("xai_api_key", None)
+
+        has_key = bool(resolve_xai_key())
         use_llm = st.toggle(
             "Call Grok for advice",
-            value=bool(
-                os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY")
-            ),
-            help="Needs XAI_API_KEY. Off = deterministic offline plan.",
+            value=has_key,
+            help="Needs an xAI key (sidebar or XAI_API_KEY). Off = deterministic offline plan.",
         )
         show_prompt = st.toggle("Show LLM prompt (debug)", value=False)
         st.divider()
