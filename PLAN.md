@@ -8,47 +8,57 @@ Related: [`idea.md`](idea.md) (concept), [`TECH_PARTNERS.md`](TECH_PARTNERS.md) 
 
 ---
 
-## 0. What is already verified (do not re-investigate)
+## 0. Track A results — measured, not assumed
 
-These were smoke-tested live against the real endpoints. Treat as **green**.
+Everything below came from running `scripts/build_pins.py` against the live APIs for all six pins. Output is committed at `data/pins.json`.
 
-| Check | Result | Meaning |
+| Source | Status | Detail |
 | --- | --- | --- |
-| Open-Meteo Archive API (Novi Sad, summer 2024) | 92 days returned, max 38.5 °C, 61 days ≥30 °C | History works, no key, instant |
-| Open-Meteo Climate API (Novi Sad, 2030) | 365 daily values returned | Future projections work, no key |
-| SoilGrids point query (Novi Sad) | returned `clay`, `nitrogen`, `phh2o` | Real soil data works despite ISRIC's "paused" notice |
-| FAOSTAT QCL (Serbia maize yield) | HTTP 521 | **Broken right now** — needs fallback or drop |
+| Open-Meteo Archive | ✅ works | ERA5 daily, 1940→, no key. Also serves ET0 and soil moisture. |
+| Open-Meteo Climate | ✅ works | 3 CMIP6 models retrieved to 2050 |
+| SoilGrids | ❌ **dead for Europe** | Returns HTTP 200 with `null` values for Serbia *and* the Netherlands. Iowa returns real data, so it's regional, not our bug. 0/6 pins. |
+| FAOSTAT QCL | ❌ HTTP 521 | Still down |
 
-### The core signal exists — this is our pitch
+> **Correction to an earlier note in this file:** SoilGrids was previously marked verified. That check only read the response's layer *names*, which are present even when every value is null. It is not usable for Serbia right now.
 
-Novi Sad, same coordinates, two decades compared:
+### The real finding: annual rainfall hides the problem
 
-| Index (per year) | 1985–1994 | 2015–2024 | Change |
-| --- | --- | --- | --- |
-| Days ≥ 30 °C | 29.4 | 38.1 | **+30%** |
-| Days ≥ 35 °C | 3.5 | 6.6 | **+89%** |
-| Total precipitation | 599 mm | 609 mm | flat |
-| Heavy rain days (≥20 mm) | 2.5 | 2.6 | flat |
+The first hunch — "rain flat, heat up" — only held at Novi Sad, and only for *annual* totals. Annual rainfall actually **rose** at four of six pins. The defensible version uses the growing-season water balance: summer rainfall minus ET0 (reference evapotranspiration, the FAO standard measure of crop water demand). Both come straight from ERA5.
 
-**Read this correctly — it is the whole story.** Rainfall did not change, but extreme heat nearly doubled. Same water, far more evaporative demand → the land is drying out without the rain gauge showing it. A farmer looking only at rainfall totals would see nothing wrong.
+**Summer (Jun–Aug) water balance, mm/year:**
 
-That framing ("your rain looks fine, your soil isn't") is more compelling than a generic "climate is changing" chart, and we can compute it in ~30 lines of Python.
+| Location | Rainfall | ET0 demand | Balance | Annual rainfall says |
+| --- | --- | --- | --- | --- |
+| Novi Sad | 187 → 158 | 428 → 456 | −241 → **−298** | "stable, 599→609" |
+| Zrenjanin | 170 → 159 | 430 → 471 | −260 → **−312** | "stable, 564→597" |
+| Subotica | 156 → 159 | 434 → 463 | −278 → **−304** | "improving, 547→606" |
+| Belgrade | 181 → 209 | 420 → 449 | −239 → −240 | improving, 598→708 |
+| Kraljevo | 192 → 206 | 382 → 414 | −190 → −208 | improving, 661→772 |
+| Niš | 132 → 164 | 419 → 434 | −287 → **−270** | improving, 521→682 |
+
+**Three things this gives us that a generic climate chart does not:**
+
+1. **ET0 rose at 6 of 6 pins** (+15 to +41 mm per summer). Crop water demand is up everywhere, without exception. That is the universal signal.
+2. **The masking effect is real at 3 of 6 pins** — Novi Sad, Zrenjanin, Subotica. Their annual rainfall looks flat or improving while the summer deficit worsens by 26–57 mm. A farmer reading annual totals concludes nothing is wrong.
+3. **It is not uniform, and that is the product.** Vojvodina (the northern breadbasket) is deteriorating; Belgrade, Kraljevo and Niš are stable or improving. So the answer genuinely depends on your plot — which is the reason to build the tool at all. "Everything is getting worse" would be both less true and less useful.
+
+Heat rose at 6 of 6 pins regardless: growing degree days up 51–190, days ≥35 °C up at every location (Zrenjanin 2.7 → 8.0).
 
 ---
 
-## 1. What we still don't know (the actual investigation)
+## 1. Open questions
 
-Ranked by how badly a wrong answer hurts us.
+| # | Question | Risk if wrong | Owner | Status |
+| --- | --- | --- | --- | --- |
+| Q1 | Does the signal hold across Serbia, or is Novi Sad a fluke? | Kills the pitch | A | ✅ Holds at 6/6 for heat and ET0; water deficit worsens at 3/6 |
+| Q2 | Is the Climate projection usable, or does model choice swing it? | Forecast panel becomes noise | A | ✅ Direction agrees, magnitude does not — **must show a range** |
+| Q3 | Can we get real soil per point? | Back to fake sliders | A | ❌ SoilGrids dead for Europe — replaced with ERA5 soil moisture |
+| Q4 | Which map/UI gives click-a-field in the least code? | Burns hours on plumbing | B | open |
+| Q5 | Does the Kaggle crop model make sense for Serbian crops? | Recommendations look silly | B | open |
+| Q6 | Does the LLM produce real agronomy or generic filler? | Demo feels hollow | B | open |
+| Q7 | Is God's Eye View worth forking? | Could eat the whole day | B | open |
 
-| # | Open question | Risk if wrong | Owner |
-| --- | --- | --- | --- |
-| Q1 | Does the heat signal hold across multiple Serbian locations, or is Novi Sad a fluke? | Kills the pitch | A |
-| Q2 | Is the Climate API projection usable, or does model choice swing results wildly? | Forecast panel becomes noise | A |
-| Q3 | Can we get real soil for any Serbian point reliably (latency, rate limits, failures)? | Back to fake sliders | A |
-| Q4 | Which map/UI gives click-a-field in the least code? | Burns hours on plumbing | B |
-| Q5 | Does the Kaggle crop model produce sane results for Serbian crops (wheat/maize/soy)? | Recommendations look silly | B |
-| Q6 | Does the LLM produce useful agronomy from our JSON, or generic filler? | Demo feels hollow | B |
-| Q7 | Is God's Eye View worth forking, or a time sink? | Could eat the whole day | B |
+**On Q2 — do not print a single projected number.** For 2031–2040 days ≥30 °C the three models disagree substantially: Novi Sad 44–57, Belgrade 42–53, Kraljevo 38–47. Every model agrees the direction is up and every projection exceeds the recent decade, so the honest presentation is "44 to 57 days, models disagree on how far" rather than a fake-precise 52.
 
 ---
 
