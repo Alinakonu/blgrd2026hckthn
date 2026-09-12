@@ -18,6 +18,7 @@ import requests
 import streamlit as st
 
 from agrisense import crops as crop_model
+from agrisense import store
 from agrisense.prompt import SIGNAL_TEXT, build_messages, build_user_prompt
 
 ROOT = Path(__file__).resolve().parent
@@ -541,8 +542,9 @@ def apply_field_day_theme() -> None:
 
 
 @st.cache_data
-def load_pins() -> list[dict]:
-    return json.loads(PINS_PATH.read_text(encoding="utf-8"))
+def load_pins() -> tuple[list[dict], str]:
+    """Field records from Convex, falling back to the committed JSON."""
+    return store.load_pins()
 
 
 def pin_by_name(pins: list[dict], name: str) -> dict:
@@ -1177,7 +1179,7 @@ def call_grok(messages: list[dict]) -> str:
 def main() -> None:
     apply_field_day_theme()
 
-    pins = load_pins()
+    pins, pin_source = load_pins()
     names_present = {p["location"]["name"] for p in pins}
     ordered = [n for n in DEMO_ORDER if n in names_present]
     ordered += sorted(names_present - set(ordered))
@@ -1238,9 +1240,19 @@ def main() -> None:
         )
         show_prompt = st.toggle("Show LLM prompt (debug)", value=False)
         st.divider()
-        st.caption(
-            f"Offline store: `{PINS_PATH.relative_to(ROOT)}` · {len(pins)} pins"
-        )
+
+        if pin_source == "convex":
+            st.caption(f"Store: **Convex** · {len(pins)} pins")
+        else:
+            st.caption(
+                f"Store: local `{PINS_PATH.relative_to(ROOT)}` · {len(pins)} pins"
+            )
+
+        feed = store.recent_advisories(limit=5)
+        if feed:
+            st.markdown("**Recent plans (live)**")
+            for item in feed:
+                st.caption(f"· {item['location']} — {item['mode']}")
 
     record = pin_by_name(pins, name)
     assessment = crop_model.assess(record)
@@ -1368,6 +1380,14 @@ def main() -> None:
                     "mode": "offline",
                     "text": offline_action_plan(record, assessment),
                 }
+
+            # Best effort — a Convex failure must not hide the plan.
+            store.log_advisory(
+                record,
+                assessment,
+                st.session_state[cache_key]["mode"],
+                st.session_state[cache_key]["text"],
+            )
 
         payload = st.session_state[cache_key]
         if payload.get("error"):
