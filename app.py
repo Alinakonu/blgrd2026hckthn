@@ -1114,11 +1114,13 @@ def main() -> None:
         "Summer ET0",
         f"{recent['summer_water_demand_mm']} mm",
         f"{delta(base['summer_water_demand_mm'], recent['summer_water_demand_mm']):+.0f} mm",
+        delta_color="inverse",
     )
     m4.metric(
         "Days ≥30°C",
         f"{recent['hot_days_30']}",
         f"{delta(base['hot_days_30'], recent['hot_days_30']):+.1f}",
+        delta_color="inverse",
     )
 
     left, right = st.columns((1.35, 1))
