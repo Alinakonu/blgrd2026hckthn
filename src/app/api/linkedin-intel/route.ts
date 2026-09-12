@@ -1,6 +1,5 @@
 /**
  * future: LinkedIn agritech company intel — API surface for the stub.
- * Returns empty results until a scraper/agent is plugged in.
  */
 import { NextResponse } from "next/server";
 import { fetchAgritechCompanyIntel } from "@/lib/linkedin-stub";

@@ -22,10 +22,6 @@ export type LinkedInIntelRequest = {
   keywords?: string[];
 };
 
-/**
- * Stub — returns empty intel and a TODO marker for future wiring
- * (Firecrawl/Exa + LinkedIn-public pages, or a licensed data partner).
- */
 export async function fetchAgritechCompanyIntel(
   _req: LinkedInIntelRequest,
 ): Promise<{

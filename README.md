@@ -53,11 +53,27 @@ npm run snapshot:fixture
 
 No API keys required for the MVP happy path (SoilGrids + Open-Meteo are public; fixtures cover demo).
 
+## Live demo
+
+Full team runbook (local, Render, Cursor Try Live notes, 18:00 freeze checklist):
+
+→ **[Live session setup](./docs/live-session-setup.md)**  
+(Project copy also at store `docs/live-session-setup.md`.)
+
+Quick path:
+
+```bash
+npm install && cp .env.example .env.local && npm run dev
+```
+
+Public HTTPS: deploy this branch on Render with `USE_FIXTURES=1` (see below). Redeem Render credits at check-in.
+
 ## Deploy on Render
 
 1. Push this branch / merge to a public GitHub repo.
 2. [Render](https://render.com) → **New → Web Service** → connect the repo.
 3. Settings (or use `render.yaml`):
+   - **Branch:** `cursor/soilshift-mvp-scaffold-f4e3` (or `main` after merge)
    - **Build:** `npm install && npm run build`
    - **Start:** `npm start`
    - **Env:** `USE_FIXTURES=1`, `NODE_VERSION=22`

@@ -1,7 +1,6 @@
 /**
- * Retryable loader — adapted from gods-eye-view `src/data/retryableLoad.js`.
- * Memoizes success; rate-limits failures with exponential cooldown so flaky
- * SoilGrids / Open-Meteo calls don't hammer during a live demo.
+ * Retryable fetch helpers — cooldown pattern inspired by gods-eye-view
+ * so flaky SoilGrids / Open-Meteo calls don't hammer during a live demo.
  */
 export const RETRY_COOLDOWN_MS = 5_000;
 export const RETRY_COOLDOWN_MAX_MS = 60_000;
@@ -58,7 +57,6 @@ export function createRetryableLoader<T>(
   };
 }
 
-/** One-shot fetch with timeout; used by API clients. */
 export async function fetchWithTimeout(
   url: string,
   ms = 8_000,

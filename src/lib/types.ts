@@ -1,7 +1,5 @@
 export type CropId = "maize" | "wheat" | "sunflower";
-
 export type HorizonId = "2030s" | "2050s";
-
 export type DataMode = "live" | "fixture";
 
 export interface LatLon {
@@ -63,7 +61,6 @@ export interface AnalyzeRequest {
   crop: CropId;
   horizon: HorizonId;
   telemetry?: SoilTelemetry;
-  /** Force fixture parcel data (demo-safe). */
   useFixture?: boolean;
   parcelId?: string;
 }

@@ -2,7 +2,11 @@ import fixtures from "@/data/fixtures/parcels.json";
 import { rankAdaptations } from "./adapt";
 import { DATA_CREDITS, DISCLAIMER } from "./credits";
 import { fetchAgritechCompanyIntel } from "./linkedin-stub";
-import { fetchBaselineClimate, fetchProjectedClimate, scoreStress } from "./openmeteo";
+import {
+  fetchBaselineClimate,
+  fetchProjectedClimate,
+  scoreStress,
+} from "./openmeteo";
 import { findParcel, nearestParcel } from "./parcels";
 import { fetchSoilGrids } from "./soilgrids";
 import type {
@@ -26,9 +30,7 @@ function fixtureFor(
 ): { id: string; name?: string; data: FixtureParcel } {
   const parcel = findParcel(parcelId) ?? nearestParcel(lat, lon);
   const data = (fixtures.parcels as Record<string, FixtureParcel>)[parcel.id];
-  if (!data) {
-    throw new Error(`Missing fixture for parcel ${parcel.id}`);
-  }
+  if (!data) throw new Error(`Missing fixture for parcel ${parcel.id}`);
   return { id: parcel.id, name: parcel.name, data };
 }
 
@@ -36,7 +38,9 @@ function forceFixtures(): boolean {
   return process.env.USE_FIXTURES === "1" || process.env.USE_FIXTURES === "true";
 }
 
-export async function analyzeField(req: AnalyzeRequest): Promise<AnalyzeResult> {
+export async function analyzeField(
+  req: AnalyzeRequest,
+): Promise<AnalyzeResult> {
   const useFixture = Boolean(req.useFixture) || forceFixtures();
   const telemetry = req.telemetry ?? {};
   let mode: AnalyzeResult["mode"] = "live";
@@ -63,7 +67,6 @@ export async function analyzeField(req: AnalyzeRequest): Promise<AnalyzeResult> 
       baseline = baseLive;
       projected = projLive;
     } catch (err) {
-      // Demo-safe fallback — same spirit as gods-eye-view fixture packs
       console.warn("[analyze] live APIs failed, using fixtures:", err);
       mode = "fixture";
       const fx = fixtureFor(req.parcelId, req.lat, req.lon);
@@ -74,25 +77,12 @@ export async function analyzeField(req: AnalyzeRequest): Promise<AnalyzeResult> 
     }
   }
 
-  if (telemetry.ph != null) {
-    soil = { ...soil, ph: telemetry.ph };
-  }
+  if (telemetry.ph != null) soil = { ...soil, ph: telemetry.ph };
 
   const scored = scoreStress(baseline, projected);
-  const stress = {
-    ...scored,
-    baseline,
-    projected,
-  };
+  const stress = { ...scored, baseline, projected };
+  const actions = rankAdaptations({ crop: req.crop, soil, stress, telemetry });
 
-  const actions = rankAdaptations({
-    crop: req.crop,
-    soil,
-    stress,
-    telemetry,
-  });
-
-  // Touch the LinkedIn stub so the hook stays wired in the happy path
   await fetchAgritechCompanyIntel({
     lat: req.lat,
     lon: req.lon,

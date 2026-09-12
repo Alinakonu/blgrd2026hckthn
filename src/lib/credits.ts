@@ -1,5 +1,5 @@
 /**
- * Data attribution — pattern inspired by gods-eye-view `src/data/dataCredits.js`.
+ * Data attribution — pattern inspired by gods-eye-view data credits.
  * Keep sources visible on every analyze response.
  */
 export const DATA_CREDITS = [
@@ -18,4 +18,4 @@ export const DATA_CREDITS = [
 ] as const;
 
 export const DISCLAIMER =
-  "Decision support only — not a certified agronomic prescription. Always validate with local extension services and soil labs.";
+  "Decision support only — not a certified agronomic prescription. Validate with local extension services and soil labs.";

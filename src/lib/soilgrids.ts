@@ -1,26 +1,25 @@
 import { fetchWithTimeout } from "./retryable";
 import type { SoilSnapshot } from "./types";
 
-type SoilGridsProp = {
+type SoilGridsLayer = {
+  name: string;
   depths?: { values?: { mean?: number | null } }[];
 };
 
 type SoilGridsResponse = {
-  properties?: {
-    layers?: {
-      name: string;
-      unit?: string;
-      depths?: { label?: string; values?: { mean?: number | null } }[];
-    }[];
-  };
+  properties?: { layers?: SoilGridsLayer[] };
 };
 
-function mean0_5(layer: SoilGridsProp | undefined): number | null {
+function mean0_5(layer: SoilGridsLayer | undefined): number | null {
   const v = layer?.depths?.[0]?.values?.mean;
   return typeof v === "number" ? v : null;
 }
 
-function textureLabel(clay: number | null, sand: number | null, silt: number | null): string {
+function textureLabel(
+  clay: number | null,
+  sand: number | null,
+  silt: number | null,
+): string {
   if (clay == null || sand == null || silt == null) return "Unknown";
   if (clay >= 40) return "Clay";
   if (sand >= 70) return "Sandy";
@@ -30,33 +29,30 @@ function textureLabel(clay: number | null, sand: number | null, silt: number | n
   return "Loam";
 }
 
-/**
- * Point query against ISRIC SoilGrids REST.
- * @see https://rest.isric.org/soilgrids/v2.0/docs
- */
-export async function fetchSoilGrids(lat: number, lon: number): Promise<SoilSnapshot> {
+/** Point query against ISRIC SoilGrids REST. */
+export async function fetchSoilGrids(
+  lat: number,
+  lon: number,
+): Promise<SoilSnapshot> {
   const params = new URLSearchParams({
     lat: String(lat),
     lon: String(lon),
+    depth: "0-5cm",
+    value: "mean",
   });
   for (const p of ["phh2o", "soc", "clay", "sand", "silt"]) {
     params.append("property", p);
   }
-  params.append("depth", "0-5cm");
-  params.append("value", "mean");
-
-  const url = `https://rest.isric.org/soilgrids/v2.0/properties/query?${params}`;
-  const res = await fetchWithTimeout(url, 10_000, {
-    headers: { Accept: "application/json" },
-  });
-  if (!res.ok) {
-    throw new Error(`SoilGrids HTTP ${res.status}`);
-  }
+  const res = await fetchWithTimeout(
+    `https://rest.isric.org/soilgrids/v2.0/properties/query?${params}`,
+    10_000,
+    { headers: { Accept: "application/json" } },
+  );
+  if (!res.ok) throw new Error(`SoilGrids HTTP ${res.status}`);
   const json = (await res.json()) as SoilGridsResponse;
   const layers = json.properties?.layers ?? [];
   const byName = Object.fromEntries(layers.map((l) => [l.name, l]));
 
-  // SoilGrids units: phh2o is pH*10, soc is dg/kg, clay/sand/silt are g/kg
   const phRaw = mean0_5(byName.phh2o);
   const socRaw = mean0_5(byName.soc);
   const clayRaw = mean0_5(byName.clay);

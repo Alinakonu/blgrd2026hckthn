@@ -6,7 +6,7 @@ const FieldMap = dynamic(() => import("./FieldMap"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full items-center justify-center bg-[var(--map-wash)] text-sm text-[var(--muted)]">
-      Loading map…
+      Loading field map…
     </div>
   ),
 });

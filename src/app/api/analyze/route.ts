@@ -23,10 +23,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "lat/lon out of range" }, { status: 400 });
     }
     if (!CROPS.includes(crop)) {
-      return NextResponse.json({ error: "crop must be maize|wheat|sunflower" }, { status: 400 });
+      return NextResponse.json(
+        { error: "crop must be maize|wheat|sunflower" },
+        { status: 400 },
+      );
     }
     if (!HORIZONS.includes(horizon)) {
-      return NextResponse.json({ error: "horizon must be 2030s|2050s" }, { status: 400 });
+      return NextResponse.json(
+        { error: "horizon must be 2030s|2050s" },
+        { status: 400 },
+      );
     }
 
     const result = await analyzeField({

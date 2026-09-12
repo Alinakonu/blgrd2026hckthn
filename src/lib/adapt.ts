@@ -38,10 +38,7 @@ function clampPriority(score: number): AdaptationAction["priority"] {
   return "low";
 }
 
-/**
- * Deterministic ranked adaptation checklist.
- * Blends SoilShift climate horizons with AgriSense soil telemetry cues.
- */
+/** Deterministic ranked adaptation checklist. */
 export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
   const { crop, soil, stress, telemetry } = ctx;
   const ph = telemetry.ph ?? soil.ph ?? 7;
@@ -49,12 +46,13 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
   const sand = soil.sandPct ?? 35;
   const candidates: (AdaptationAction & { score: number })[] = [];
 
-  // Organic matter / residue — always relevant when SOC low or drought rising
   {
     const score =
       (soc < 15 ? 35 : 15) +
       stress.droughtScore * 0.35 +
-      (telemetry.organicMatterPct != null && telemetry.organicMatterPct < 2 ? 20 : 0);
+      (telemetry.organicMatterPct != null && telemetry.organicMatterPct < 2
+        ? 20
+        : 0);
     candidates.push({
       id: "build-om",
       title: "Build soil organic matter (residue + compost)",
@@ -68,7 +66,6 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
     });
   }
 
-  // Cover crops
   {
     const score =
       stress.extremePrecipScore * 0.25 +
@@ -82,13 +79,12 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
       priority: clampPriority(score),
       score,
       why: `Heat +${stress.heatDeltaC}°C and precip change ${stress.precipChangePct}% raise erosion and bare-soil bake risk between cash crops.`,
-      how: "Try vetch–rye or clover mixes after harvest; terminate before planting window for your region.",
+      how: "Try vetch–rye or clover mixes after harvest; terminate before your planting window.",
       cites: [CITE.cover, CITE.openMeteo],
       drivers: ["heat", "extreme-precip", "texture"],
     });
   }
 
-  // Irrigation timing / deficit irrigation
   {
     const score =
       stress.droughtScore * 0.55 +
@@ -107,7 +103,6 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
     });
   }
 
-  // Reduce tillage intensity
   {
     const score =
       stress.droughtScore * 0.2 +
@@ -126,7 +121,6 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
     });
   }
 
-  // pH / amendment direction (AgriSense soil module)
   {
     let score = 15;
     let title = "Hold pH; retest in 2 seasons";
@@ -156,7 +150,6 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
     });
   }
 
-  // NPK balance hint from AgriSense telemetry (if provided)
   if (
     telemetry.n != null ||
     telemetry.p != null ||
@@ -164,22 +157,22 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
     telemetry.moisture != null
   ) {
     const n = telemetry.n ?? 40;
-    const p = telemetry.p ?? 40;
+    const pVal = telemetry.p ?? 40;
     const k = telemetry.k ?? 40;
     const moist = telemetry.moisture ?? 50;
     let score = 40;
     let title = "Tune NPK to crop demand + moisture";
-    let why = `Telemetry N=${n}, P=${p}, K=${k}, moisture=${moist}. Pair fertilizer with water-limited seasons.`;
+    let why = `Telemetry N=${n}, P=${pVal}, K=${k}, moisture=${moist}. Pair fertilizer with water-limited seasons.`;
     let how = "Split N; avoid large single shots before heat waves; match P/K to soil test.";
     if (n > 80 && moist < 40) {
       score = 75;
       title = "Cut surplus N under dry outlook";
       why = `High N (${n}) with low moisture (${moist}) raises lodging / burn risk as heat increases.`;
       how = "Reduce pre-plant N 15–25%; favor in-season checks.";
-    } else if (p < 25) {
+    } else if (pVal < 25) {
       score = 68;
       title = "Correct low phosphorus starter";
-      why = `Low P (${p}) limits early rooting — worse when springs warm faster.`;
+      why = `Low P (${pVal}) limits early rooting — worse when springs warm faster.`;
       how = "Band P near seed; confirm with soil lab.";
     } else if (k < 25 && crop === "maize") {
       score = 65;
@@ -200,7 +193,6 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
     });
   }
 
-  // Crop-specific heat shield
   {
     const score =
       stress.heatScore * 0.45 +
@@ -225,9 +217,9 @@ export function rankAdaptations(ctx: RankContext): AdaptationAction[] {
 
   return candidates
     .sort((a, b) => b.score - a.score)
-    .map(({ score: _score, ...rest }, i) => ({
+    .map(({ score, ...rest }, i) => ({
       ...rest,
       rank: i + 1,
-      priority: clampPriority(_score),
+      priority: clampPriority(score),
     }));
 }
