@@ -1,0 +1,18 @@
+# Keep Streamlit and Python deps out of the Vercel upload.
+# Do not ignore `data/` — the static app needs pins.json.
+streamlit_app.py
+requirements.txt
+agrisense
+scripts
+.venv
+venv
+__pycache__
+*.pyc
+.streamlit
+convex
+node_modules
+.env
+.env.local
+*.pptx
+AgriSense-demo.pptx
+docs/*.pptx

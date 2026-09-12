@@ -1,0 +1,647 @@
+[
+  {
+    "location": {
+      "name": "Novi Sad",
+      "region": "Vojvodina",
+      "lat": 45.2671,
+      "lon": 19.8335
+    },
+    "baseline": {
+      "period": "1985-1994",
+      "hot_days_30": 29.4,
+      "hot_days_35": 3.5,
+      "peak_temp": 39.6,
+      "longest_hot_streak_days": 8.9,
+      "precip_mm": 599,
+      "heavy_rain_days_20": 2.5,
+      "max_dry_streak_days": 23.5,
+      "growing_degree_days": 1679,
+      "summer_rain_mm": 187,
+      "summer_water_demand_mm": 428,
+      "summer_water_balance_mm": -241,
+      "summer_soil_moisture": 0.2372
+    },
+    "recent": {
+      "period": "2015-2024",
+      "hot_days_30": 38.1,
+      "hot_days_35": 6.6,
+      "peak_temp": 38.5,
+      "longest_hot_streak_days": 10.7,
+      "precip_mm": 609,
+      "heavy_rain_days_20": 2.6,
+      "max_dry_streak_days": 25.1,
+      "growing_degree_days": 1847,
+      "summer_rain_mm": 158,
+      "summer_water_demand_mm": 456,
+      "summer_water_balance_mm": -298,
+      "summer_soil_moisture": 0.2309
+    },
+    "outlook": {
+      "period": "2031-2040",
+      "models": [
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR"
+      ],
+      "hot_days_30_range": [
+        44.2,
+        56.9
+      ],
+      "hot_days_30_median": 51.9,
+      "precip_mm_range": [
+        681,
+        709
+      ],
+      "confidence": "multi-model range, illustrative not a forecast",
+      "per_model": {
+        "MRI_AGCM3_2_S": {
+          "hot_days_30": 44.2,
+          "hot_days_35": 12.6,
+          "peak_temp": 41.8,
+          "longest_hot_streak_days": 12.4,
+          "precip_mm": 692,
+          "heavy_rain_days_20": 3.2,
+          "max_dry_streak_days": 22.9,
+          "growing_degree_days": 1857,
+          "summer_rain_mm": 202,
+          "summer_water_demand_mm": 748,
+          "summer_water_balance_mm": -546,
+          "summer_soil_moisture": null
+        },
+        "EC_Earth3P_HR": {
+          "hot_days_30": 56.9,
+          "hot_days_35": 15.3,
+          "peak_temp": 42.2,
+          "longest_hot_streak_days": 14.5,
+          "precip_mm": 681,
+          "heavy_rain_days_20": 5.0,
+          "max_dry_streak_days": 28.5,
+          "growing_degree_days": 1988,
+          "summer_rain_mm": 171,
+          "summer_water_demand_mm": 833,
+          "summer_water_balance_mm": -662,
+          "summer_soil_moisture": null
+        },
+        "MPI_ESM1_2_XR": {
+          "hot_days_30": 51.9,
+          "hot_days_35": 14.5,
+          "peak_temp": 42.4,
+          "longest_hot_streak_days": 18.5,
+          "precip_mm": 709,
+          "heavy_rain_days_20": 5.8,
+          "max_dry_streak_days": 43.0,
+          "growing_degree_days": 1973,
+          "summer_rain_mm": 166,
+          "summer_water_demand_mm": 830,
+          "summer_water_balance_mm": -664,
+          "summer_soil_moisture": null
+        }
+      }
+    },
+    "signals": [
+      "heat_intensifying",
+      "annual_rainfall_stable",
+      "crop_water_demand_rising",
+      "summer_water_deficit_worsening",
+      "annual_totals_masking_summer_stress"
+    ],
+    "soil": null
+  },
+  {
+    "location": {
+      "name": "Subotica",
+      "region": "North Backa",
+      "lat": 46.1006,
+      "lon": 19.6651
+    },
+    "baseline": {
+      "period": "1985-1994",
+      "hot_days_30": 25.4,
+      "hot_days_35": 1.8,
+      "peak_temp": 37.7,
+      "longest_hot_streak_days": 8.6,
+      "precip_mm": 547,
+      "heavy_rain_days_20": 1.9,
+      "max_dry_streak_days": 27.4,
+      "growing_degree_days": 1582,
+      "summer_rain_mm": 156,
+      "summer_water_demand_mm": 434,
+      "summer_water_balance_mm": -278,
+      "summer_soil_moisture": 0.1323
+    },
+    "recent": {
+      "period": "2015-2024",
+      "hot_days_30": 36.0,
+      "hot_days_35": 5.1,
+      "peak_temp": 38.9,
+      "longest_hot_streak_days": 10.4,
+      "precip_mm": 606,
+      "heavy_rain_days_20": 1.9,
+      "max_dry_streak_days": 26.1,
+      "growing_degree_days": 1781,
+      "summer_rain_mm": 159,
+      "summer_water_demand_mm": 463,
+      "summer_water_balance_mm": -304,
+      "summer_soil_moisture": 0.1463
+    },
+    "outlook": {
+      "period": "2031-2040",
+      "models": [
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR"
+      ],
+      "hot_days_30_range": [
+        45.0,
+        48.9
+      ],
+      "hot_days_30_median": 47.6,
+      "precip_mm_range": [
+        611,
+        632
+      ],
+      "confidence": "multi-model range, illustrative not a forecast",
+      "per_model": {
+        "MRI_AGCM3_2_S": {
+          "hot_days_30": 45.0,
+          "hot_days_35": 12.6,
+          "peak_temp": 42.1,
+          "longest_hot_streak_days": 13.0,
+          "precip_mm": 619,
+          "heavy_rain_days_20": 3.2,
+          "max_dry_streak_days": 25.1,
+          "growing_degree_days": 1782,
+          "summer_rain_mm": 185,
+          "summer_water_demand_mm": 803,
+          "summer_water_balance_mm": -618,
+          "summer_soil_moisture": null
+        },
+        "EC_Earth3P_HR": {
+          "hot_days_30": 48.9,
+          "hot_days_35": 12.8,
+          "peak_temp": 42.2,
+          "longest_hot_streak_days": 12.8,
+          "precip_mm": 611,
+          "heavy_rain_days_20": 3.2,
+          "max_dry_streak_days": 26.3,
+          "growing_degree_days": 1897,
+          "summer_rain_mm": 142,
+          "summer_water_demand_mm": 851,
+          "summer_water_balance_mm": -709,
+          "summer_soil_moisture": null
+        },
+        "MPI_ESM1_2_XR": {
+          "hot_days_30": 47.6,
+          "hot_days_35": 13.2,
+          "peak_temp": 42.7,
+          "longest_hot_streak_days": 15.9,
+          "precip_mm": 632,
+          "heavy_rain_days_20": 3.3,
+          "max_dry_streak_days": 38.3,
+          "growing_degree_days": 1879,
+          "summer_rain_mm": 159,
+          "summer_water_demand_mm": 826,
+          "summer_water_balance_mm": -667,
+          "summer_soil_moisture": null
+        }
+      }
+    },
+    "signals": [
+      "heat_intensifying",
+      "annual_rainfall_increasing",
+      "crop_water_demand_rising",
+      "summer_water_deficit_worsening",
+      "annual_totals_masking_summer_stress"
+    ],
+    "soil": null
+  },
+  {
+    "location": {
+      "name": "Zrenjanin",
+      "region": "Banat",
+      "lat": 45.3836,
+      "lon": 20.3819
+    },
+    "baseline": {
+      "period": "1985-1994",
+      "hot_days_30": 28.1,
+      "hot_days_35": 2.7,
+      "peak_temp": 39.3,
+      "longest_hot_streak_days": 8.7,
+      "precip_mm": 564,
+      "heavy_rain_days_20": 1.6,
+      "max_dry_streak_days": 26.6,
+      "growing_degree_days": 1674,
+      "summer_rain_mm": 170,
+      "summer_water_demand_mm": 430,
+      "summer_water_balance_mm": -260,
+      "summer_soil_moisture": 0.2329
+    },
+    "recent": {
+      "period": "2015-2024",
+      "hot_days_30": 40.5,
+      "hot_days_35": 8.0,
+      "peak_temp": 39.7,
+      "longest_hot_streak_days": 12.2,
+      "precip_mm": 597,
+      "heavy_rain_days_20": 2.5,
+      "max_dry_streak_days": 26.6,
+      "growing_degree_days": 1864,
+      "summer_rain_mm": 159,
+      "summer_water_demand_mm": 471,
+      "summer_water_balance_mm": -312,
+      "summer_soil_moisture": 0.2306
+    },
+    "outlook": {
+      "period": "2031-2040",
+      "models": [
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR"
+      ],
+      "hot_days_30_range": [
+        45.6,
+        55.2
+      ],
+      "hot_days_30_median": 49.9,
+      "precip_mm_range": [
+        646,
+        693
+      ],
+      "confidence": "multi-model range, illustrative not a forecast",
+      "per_model": {
+        "MRI_AGCM3_2_S": {
+          "hot_days_30": 45.6,
+          "hot_days_35": 14.1,
+          "peak_temp": 41.9,
+          "longest_hot_streak_days": 12.9,
+          "precip_mm": 646,
+          "heavy_rain_days_20": 2.7,
+          "max_dry_streak_days": 23.6,
+          "growing_degree_days": 1869,
+          "summer_rain_mm": 189,
+          "summer_water_demand_mm": 784,
+          "summer_water_balance_mm": -595,
+          "summer_soil_moisture": null
+        },
+        "EC_Earth3P_HR": {
+          "hot_days_30": 55.2,
+          "hot_days_35": 14.3,
+          "peak_temp": 41.5,
+          "longest_hot_streak_days": 13.9,
+          "precip_mm": 649,
+          "heavy_rain_days_20": 3.8,
+          "max_dry_streak_days": 25.5,
+          "growing_degree_days": 1990,
+          "summer_rain_mm": 158,
+          "summer_water_demand_mm": 844,
+          "summer_water_balance_mm": -686,
+          "summer_soil_moisture": null
+        },
+        "MPI_ESM1_2_XR": {
+          "hot_days_30": 49.9,
+          "hot_days_35": 14.6,
+          "peak_temp": 42.4,
+          "longest_hot_streak_days": 21.5,
+          "precip_mm": 693,
+          "heavy_rain_days_20": 4.6,
+          "max_dry_streak_days": 42.7,
+          "growing_degree_days": 1974,
+          "summer_rain_mm": 178,
+          "summer_water_demand_mm": 843,
+          "summer_water_balance_mm": -665,
+          "summer_soil_moisture": null
+        }
+      }
+    },
+    "signals": [
+      "heat_intensifying",
+      "annual_rainfall_stable",
+      "crop_water_demand_rising",
+      "summer_water_deficit_worsening",
+      "annual_totals_masking_summer_stress"
+    ],
+    "soil": null
+  },
+  {
+    "location": {
+      "name": "Belgrade",
+      "region": "Central",
+      "lat": 44.7866,
+      "lon": 20.4489
+    },
+    "baseline": {
+      "period": "1985-1994",
+      "hot_days_30": 26.7,
+      "hot_days_35": 2.5,
+      "peak_temp": 39.7,
+      "longest_hot_streak_days": 8.4,
+      "precip_mm": 598,
+      "heavy_rain_days_20": 2.3,
+      "max_dry_streak_days": 29.2,
+      "growing_degree_days": 1626,
+      "summer_rain_mm": 181,
+      "summer_water_demand_mm": 420,
+      "summer_water_balance_mm": -239,
+      "summer_soil_moisture": 0.243
+    },
+    "recent": {
+      "period": "2015-2024",
+      "hot_days_30": 36.0,
+      "hot_days_35": 5.1,
+      "peak_temp": 38.2,
+      "longest_hot_streak_days": 9.0,
+      "precip_mm": 708,
+      "heavy_rain_days_20": 3.6,
+      "max_dry_streak_days": 22.8,
+      "growing_degree_days": 1838,
+      "summer_rain_mm": 209,
+      "summer_water_demand_mm": 449,
+      "summer_water_balance_mm": -240,
+      "summer_soil_moisture": 0.2443
+    },
+    "outlook": {
+      "period": "2031-2040",
+      "models": [
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR"
+      ],
+      "hot_days_30_range": [
+        42.1,
+        52.7
+      ],
+      "hot_days_30_median": 47.9,
+      "precip_mm_range": [
+        663,
+        712
+      ],
+      "confidence": "multi-model range, illustrative not a forecast",
+      "per_model": {
+        "MRI_AGCM3_2_S": {
+          "hot_days_30": 42.1,
+          "hot_days_35": 12.0,
+          "peak_temp": 41.9,
+          "longest_hot_streak_days": 11.7,
+          "precip_mm": 712,
+          "heavy_rain_days_20": 3.6,
+          "max_dry_streak_days": 22.1,
+          "growing_degree_days": 1810,
+          "summer_rain_mm": 196,
+          "summer_water_demand_mm": 749,
+          "summer_water_balance_mm": -553,
+          "summer_soil_moisture": null
+        },
+        "EC_Earth3P_HR": {
+          "hot_days_30": 52.7,
+          "hot_days_35": 12.2,
+          "peak_temp": 40.7,
+          "longest_hot_streak_days": 13.4,
+          "precip_mm": 674,
+          "heavy_rain_days_20": 3.9,
+          "max_dry_streak_days": 25.5,
+          "growing_degree_days": 1949,
+          "summer_rain_mm": 148,
+          "summer_water_demand_mm": 805,
+          "summer_water_balance_mm": -657,
+          "summer_soil_moisture": null
+        },
+        "MPI_ESM1_2_XR": {
+          "hot_days_30": 47.9,
+          "hot_days_35": 13.6,
+          "peak_temp": 42.5,
+          "longest_hot_streak_days": 21.2,
+          "precip_mm": 663,
+          "heavy_rain_days_20": 4.7,
+          "max_dry_streak_days": 50.7,
+          "growing_degree_days": 1955,
+          "summer_rain_mm": 159,
+          "summer_water_demand_mm": 808,
+          "summer_water_balance_mm": -649,
+          "summer_soil_moisture": null
+        }
+      }
+    },
+    "signals": [
+      "heat_intensifying",
+      "annual_rainfall_increasing",
+      "crop_water_demand_rising",
+      "summer_water_deficit_stable"
+    ],
+    "soil": null
+  },
+  {
+    "location": {
+      "name": "Kraljevo",
+      "region": "Sumadija",
+      "lat": 43.7258,
+      "lon": 20.6892
+    },
+    "baseline": {
+      "period": "1985-1994",
+      "hot_days_30": 27.4,
+      "hot_days_35": 3.2,
+      "peak_temp": 41.0,
+      "longest_hot_streak_days": 6.4,
+      "precip_mm": 661,
+      "heavy_rain_days_20": 2.8,
+      "max_dry_streak_days": 23.6,
+      "growing_degree_days": 1494,
+      "summer_rain_mm": 192,
+      "summer_water_demand_mm": 382,
+      "summer_water_balance_mm": -190,
+      "summer_soil_moisture": 0.2775
+    },
+    "recent": {
+      "period": "2015-2024",
+      "hot_days_30": 35.6,
+      "hot_days_35": 5.3,
+      "peak_temp": 38.0,
+      "longest_hot_streak_days": 8.6,
+      "precip_mm": 772,
+      "heavy_rain_days_20": 4.5,
+      "max_dry_streak_days": 22.7,
+      "growing_degree_days": 1680,
+      "summer_rain_mm": 206,
+      "summer_water_demand_mm": 414,
+      "summer_water_balance_mm": -208,
+      "summer_soil_moisture": 0.2504
+    },
+    "outlook": {
+      "period": "2031-2040",
+      "models": [
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR"
+      ],
+      "hot_days_30_range": [
+        37.7,
+        46.6
+      ],
+      "hot_days_30_median": 40.0,
+      "precip_mm_range": [
+        814,
+        840
+      ],
+      "confidence": "multi-model range, illustrative not a forecast",
+      "per_model": {
+        "MRI_AGCM3_2_S": {
+          "hot_days_30": 37.7,
+          "hot_days_35": 6.4,
+          "peak_temp": 43.3,
+          "longest_hot_streak_days": 9.6,
+          "precip_mm": 840,
+          "heavy_rain_days_20": 6.9,
+          "max_dry_streak_days": 25.8,
+          "growing_degree_days": 1653,
+          "summer_rain_mm": 199,
+          "summer_water_demand_mm": 529,
+          "summer_water_balance_mm": -330,
+          "summer_soil_moisture": null
+        },
+        "EC_Earth3P_HR": {
+          "hot_days_30": 46.6,
+          "hot_days_35": 9.1,
+          "peak_temp": 39.3,
+          "longest_hot_streak_days": 11.4,
+          "precip_mm": 814,
+          "heavy_rain_days_20": 5.7,
+          "max_dry_streak_days": 26.4,
+          "growing_degree_days": 1759,
+          "summer_rain_mm": 180,
+          "summer_water_demand_mm": 642,
+          "summer_water_balance_mm": -462,
+          "summer_soil_moisture": null
+        },
+        "MPI_ESM1_2_XR": {
+          "hot_days_30": 40.0,
+          "hot_days_35": 10.9,
+          "peak_temp": 41.7,
+          "longest_hot_streak_days": 14.2,
+          "precip_mm": 828,
+          "heavy_rain_days_20": 4.5,
+          "max_dry_streak_days": 42.1,
+          "growing_degree_days": 1707,
+          "summer_rain_mm": 185,
+          "summer_water_demand_mm": 605,
+          "summer_water_balance_mm": -420,
+          "summer_soil_moisture": null
+        }
+      }
+    },
+    "signals": [
+      "heat_intensifying",
+      "annual_rainfall_increasing",
+      "crop_water_demand_rising",
+      "summer_water_deficit_stable"
+    ],
+    "soil": null
+  },
+  {
+    "location": {
+      "name": "Nis",
+      "region": "South",
+      "lat": 43.3209,
+      "lon": 21.8958
+    },
+    "baseline": {
+      "period": "1985-1994",
+      "hot_days_30": 35.3,
+      "hot_days_35": 4.9,
+      "peak_temp": 41.5,
+      "longest_hot_streak_days": 8.5,
+      "precip_mm": 521,
+      "heavy_rain_days_20": 1.3,
+      "max_dry_streak_days": 29.4,
+      "growing_degree_days": 1662,
+      "summer_rain_mm": 132,
+      "summer_water_demand_mm": 419,
+      "summer_water_balance_mm": -287,
+      "summer_soil_moisture": 0.2318
+    },
+    "recent": {
+      "period": "2015-2024",
+      "hot_days_30": 40.1,
+      "hot_days_35": 5.9,
+      "peak_temp": 38.9,
+      "longest_hot_streak_days": 13.2,
+      "precip_mm": 682,
+      "heavy_rain_days_20": 4.0,
+      "max_dry_streak_days": 27.6,
+      "growing_degree_days": 1713,
+      "summer_rain_mm": 164,
+      "summer_water_demand_mm": 434,
+      "summer_water_balance_mm": -270,
+      "summer_soil_moisture": 0.2394
+    },
+    "outlook": {
+      "period": "2031-2040",
+      "models": [
+        "MRI_AGCM3_2_S",
+        "EC_Earth3P_HR",
+        "MPI_ESM1_2_XR"
+      ],
+      "hot_days_30_range": [
+        49.6,
+        56.5
+      ],
+      "hot_days_30_median": 50.9,
+      "precip_mm_range": [
+        625,
+        646
+      ],
+      "confidence": "multi-model range, illustrative not a forecast",
+      "per_model": {
+        "MRI_AGCM3_2_S": {
+          "hot_days_30": 49.6,
+          "hot_days_35": 15.0,
+          "peak_temp": 44.2,
+          "longest_hot_streak_days": 14.1,
+          "precip_mm": 631,
+          "heavy_rain_days_20": 2.6,
+          "max_dry_streak_days": 26.3,
+          "growing_degree_days": 1813,
+          "summer_rain_mm": 134,
+          "summer_water_demand_mm": 710,
+          "summer_water_balance_mm": -576,
+          "summer_soil_moisture": null
+        },
+        "EC_Earth3P_HR": {
+          "hot_days_30": 56.5,
+          "hot_days_35": 11.9,
+          "peak_temp": 39.8,
+          "longest_hot_streak_days": 14.1,
+          "precip_mm": 625,
+          "heavy_rain_days_20": 2.8,
+          "max_dry_streak_days": 32.8,
+          "growing_degree_days": 1916,
+          "summer_rain_mm": 120,
+          "summer_water_demand_mm": 700,
+          "summer_water_balance_mm": -580,
+          "summer_soil_moisture": null
+        },
+        "MPI_ESM1_2_XR": {
+          "hot_days_30": 50.9,
+          "hot_days_35": 13.4,
+          "peak_temp": 43.0,
+          "longest_hot_streak_days": 21.1,
+          "precip_mm": 646,
+          "heavy_rain_days_20": 2.2,
+          "max_dry_streak_days": 41.1,
+          "growing_degree_days": 1873,
+          "summer_rain_mm": 117,
+          "summer_water_demand_mm": 674,
+          "summer_water_balance_mm": -557,
+          "summer_soil_moisture": null
+        }
+      }
+    },
+    "signals": [
+      "heat_stable",
+      "annual_rainfall_increasing",
+      "crop_water_demand_rising",
+      "summer_water_deficit_stable"
+    ],
+    "soil": null
+  }
+]
