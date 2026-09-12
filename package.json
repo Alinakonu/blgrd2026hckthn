@@ -1,0 +1,12 @@
+{
+  "name": "agrisense-convex",
+  "private": true,
+  "description": "Convex backend for AgriSense — field records and advisory history.",
+  "scripts": {
+    "dev": "convex dev",
+    "deploy": "convex deploy"
+  },
+  "dependencies": {
+    "convex": "^1.17.0"
+  }
+}

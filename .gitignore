@@ -4,6 +4,10 @@ __pycache__/
 venv/
 .env
 .env.local
+node_modules/
+convex/_generated/
+~$*.pptx
+.env.local
 .streamlit/secrets.toml
 
 # leftover from other branch experiments — do not commit
