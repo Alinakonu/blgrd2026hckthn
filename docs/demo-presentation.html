@@ -241,6 +241,7 @@
     }
 
     .pin .dot {
+      display: block;
       width: 10px;
       height: 10px;
       border-radius: 50%;
@@ -249,7 +250,10 @@
     }
 
     .pin.hot .dot { background: var(--danger); }
-    .pin.hot { border-color: rgba(168, 72, 64, 0.22); }
+    .pin.hot {
+      border-color: rgba(168, 72, 64, 0.22);
+      background: linear-gradient(165deg, rgba(255, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%);
+    }
 
     .pin span {
       display: block;
@@ -269,7 +273,7 @@
 
     .split-crop {
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
+      grid-template-columns: 1fr 1fr;
       gap: 1.25rem;
     }
 
@@ -432,7 +436,7 @@
     <section class="slide" data-notes="Zrenjanin: days at or above 35°C from 2.7 to 8.0. Almost a tripling. Summer deficit minus 260 to minus 312. Outlook 46 to 55 days above 30 — a range, not a forecast.">
       <div class="stage center">
         <p class="eyebrow">Zrenjanin · days ≥ 35°C</p>
-        <p class="display mega"><span class="muted">2.7</span> → 8.0</p>
+        <p class="display mega"><span class="muted">2.7</span> → <span style="color:var(--danger)">8.0</span></p>
         <p class="lede">Nearly triple.</p>
       </div>
     </section>
