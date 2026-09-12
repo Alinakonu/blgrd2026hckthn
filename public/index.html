@@ -3,559 +3,366 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AgriSense — demo</title>
+  <title>AgriSense — Serbia field check</title>
+  <meta name="description" content="Pick a Serbian plot. See if annual rain is hiding a drier summer. Get a crop action plan." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #e6ede7;
-      --panel: #f4f7f4;
-      --panel-strong: #fffcf8;
       --ink: #1b2d24;
       --ink-soft: #3e5349;
       --muted: #6a7c72;
       --accent: #2f5f46;
       --accent-ink: #f3faf5;
-      --accent-soft: #c8dccf;
-      --accent-glow: rgba(47, 95, 70, 0.18);
-      --rule: rgba(27, 45, 36, 0.11);
-      --rule-strong: rgba(27, 45, 36, 0.2);
-      --warn: #a56b28;
       --danger: #a84840;
-      --good: #2f5f46;
+      --warn: #a56b28;
+      --rule: rgba(27, 45, 36, 0.12);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     html, body {
-      height: 100%;
-      background: var(--bg);
+      min-height: 100%;
+      background: #e6ede7;
       color: var(--ink);
-      font-family: "Figtree", "Segoe UI", sans-serif;
-      overflow: hidden;
+      font-family: Figtree, "Segoe UI", sans-serif;
     }
-
-    .atmosphere {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    body {
       background:
         radial-gradient(1000px 560px at 8% 0%, rgba(180, 210, 190, 0.92), transparent 58%),
         radial-gradient(820px 480px at 92% 8%, rgba(232, 220, 200, 0.45), transparent 55%),
-        radial-gradient(900px 520px at 50% 100%, rgba(168, 196, 176, 0.5), transparent 60%),
-        linear-gradient(180deg, #eef3ef 0%, #e6ede7 45%, #dce6de 100%);
+        linear-gradient(180deg, #eef3ef 0%, #e6ede7 55%, #dce6de 100%);
     }
-
-    .atmosphere::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      opacity: 0.22;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
-      mix-blend-mode: multiply;
-    }
-
-    .deck {
-      position: relative;
-      z-index: 1;
-      height: 100%;
-      width: 100%;
-    }
-
-    .slide {
-      display: none;
-      height: 100%;
-      width: 100%;
-      padding: clamp(1.5rem, 5vh, 3.5rem) clamp(1.75rem, 6vw, 5.5rem) 4.5rem;
-      align-items: center;
-      justify-content: center;
-      animation: rise 0.45s ease both;
-    }
-
-    .slide.is-on { display: flex; }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .stage {
-      width: min(1120px, 100%);
-    }
-
-    .eyebrow {
-      font-size: 0.78rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 600;
-      margin-bottom: 0.7rem;
-    }
-
-    h1, h2, .display {
-      font-family: "Fraunces", Georgia, serif;
-      font-weight: 600;
-      letter-spacing: -0.04em;
-      line-height: 0.95;
-      color: var(--ink);
-    }
-
-    .title {
-      font-size: clamp(4.2rem, 11vw, 8.4rem);
-    }
-
-    .lede {
-      margin-top: 1.1rem;
-      font-size: clamp(1.15rem, 2.2vw, 1.55rem);
-      color: var(--ink-soft);
-      font-weight: 500;
-      letter-spacing: -0.02em;
-    }
-
-    .muted { color: var(--muted); }
-
-    .q-list {
-      list-style: none;
+    .shell {
       display: grid;
-      gap: 1.6rem;
-    }
-
-    .q-list li {
-      display: grid;
-      grid-template-columns: 3.2rem 1fr;
-      gap: 1.1rem;
-      align-items: baseline;
-    }
-
-    .q-list .n {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: 1.15rem;
-      color: var(--accent);
-      letter-spacing: -0.03em;
-    }
-
-    .q-list p {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: clamp(1.7rem, 3.6vw, 2.7rem);
-      letter-spacing: -0.035em;
-      line-height: 1.12;
-      font-weight: 600;
-    }
-
-    .pair {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-
-    .card {
-      background: linear-gradient(165deg, rgba(255, 252, 248, 0.94) 0%, rgba(255, 255, 255, 0.72) 100%);
-      border: 1px solid var(--rule);
-      border-radius: 24px;
-      padding: 1.5rem 1.6rem 1.35rem;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.8) inset,
-        0 12px 30px rgba(27, 45, 36, 0.07);
-    }
-
-    .card.danger {
-      background: linear-gradient(165deg, rgba(255, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%);
-    }
-
-    .card.good {
-      background: linear-gradient(165deg, rgba(236, 246, 239, 0.95) 0%, rgba(255, 255, 255, 0.72) 100%);
-    }
-
-    .label {
-      font-size: 0.72rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 600;
-      margin-bottom: 0.55rem;
-    }
-
-    .num {
-      font-family: "Fraunces", Georgia, serif;
-      font-size: clamp(2.4rem, 5.4vw, 4.1rem);
-      letter-spacing: -0.045em;
-      line-height: 1;
-      font-weight: 600;
-    }
-
-    .num.danger { color: var(--danger); }
-    .num.warn { color: var(--warn); }
-    .num.good { color: var(--accent); }
-
-    .arrow { color: var(--muted); font-weight: 500; }
-
-    .hint {
-      margin-top: 0.7rem;
-      color: var(--ink-soft);
-      font-size: 1.05rem;
-      font-weight: 500;
-    }
-
-    .punch {
-      font-size: clamp(2.6rem, 6vw, 4.6rem);
-      max-width: 16ch;
-    }
-
-    .center {
-      text-align: center;
-      margin-inline: auto;
-    }
-
-    .mega {
-      font-size: clamp(5rem, 14vw, 10rem);
-      letter-spacing: -0.06em;
-      line-height: 0.88;
-    }
-
-    .trio {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.1rem;
-    }
-
-    .trio h2 {
-      font-size: clamp(1.8rem, 3vw, 2.4rem);
-      margin-bottom: 0.45rem;
-    }
-
-    .pins {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0.7rem;
-      margin-top: 2.4rem;
-    }
-
-    .pin {
-      text-align: center;
-      padding: 0.85rem 0.4rem;
-      border-radius: 16px;
-      border: 1px solid var(--rule);
-      background: rgba(255, 252, 248, 0.72);
-    }
-
-    .pin .dot {
-      display: block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin: 0 auto 0.45rem;
-      background: var(--accent);
-    }
-
-    .pin.hot .dot { background: var(--danger); }
-    .pin.hot {
-      border-color: rgba(168, 72, 64, 0.22);
-      background: linear-gradient(165deg, rgba(255, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%);
-    }
-
-    .pin span {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    .pin small {
-      display: block;
-      margin-top: 0.2rem;
-      color: var(--muted);
-      font-size: 0.68rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .split-crop {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-    }
-
-    .pill {
-      display: inline-block;
-      margin-top: 0.85rem;
-      padding: 0.22rem 0.7rem;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      border: 1px solid;
-    }
-
-    .pill.bad {
-      color: var(--danger);
-      background: rgba(168, 72, 64, 0.1);
-      border-color: rgba(168, 72, 64, 0.28);
-    }
-
-    .pill.ok {
-      color: var(--accent);
-      background: rgba(47, 95, 70, 0.1);
-      border-color: rgba(47, 95, 70, 0.28);
-    }
-
-    .nav {
-      position: fixed;
-      z-index: 3;
-      left: 0;
-      right: 0;
-      bottom: 1.1rem;
-      display: flex;
-      justify-content: center;
-      gap: 0.45rem;
-      pointer-events: none;
-    }
-
-    .nav button {
-      pointer-events: auto;
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      border: 0;
-      background: rgba(27, 45, 36, 0.22);
-      cursor: pointer;
-    }
-
-    .nav button.on { background: var(--accent); transform: scale(1.25); }
-
-    .help {
-      position: fixed;
-      z-index: 3;
-      right: 1.2rem;
-      bottom: 1rem;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .notes {
-      display: none;
-      position: fixed;
-      z-index: 4;
-      left: 1.2rem;
-      right: 1.2rem;
-      bottom: 2.6rem;
-      max-width: 720px;
+      grid-template-columns: 280px 1fr;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 0.9rem 1rem;
-      border-radius: 16px;
-      background: rgba(27, 45, 36, 0.88);
-      color: #f3faf5;
-      font-size: 0.92rem;
-      line-height: 1.45;
+      min-height: 100vh;
     }
-
-    body.show-notes .notes { display: block; }
-
-    @media (max-width: 800px) {
-      .pair, .trio, .split-crop, .pins { grid-template-columns: 1fr; }
-      .q-list li { grid-template-columns: 2.2rem 1fr; }
-      .slide { padding: 1.4rem 1.2rem 4.2rem; }
+    aside {
+      padding: 1.6rem 1.25rem 2rem;
+      border-right: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(244,247,244,.96), rgba(255,252,248,.88));
     }
-
-    @media print {
-      html, body { overflow: visible; height: auto; background: white; }
-      .atmosphere, .nav, .help, .notes { display: none !important; }
-      .slide {
-        display: flex !important;
-        page-break-after: always;
-        height: 100vh;
-        animation: none;
-      }
+    aside h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    aside .cap { color: var(--muted); font-size: 0.82rem; margin: 0.45rem 0 1.2rem; line-height: 1.45; }
+    label { display: block; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 0.4rem; }
+    select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,.85);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 600;
+    }
+    .pitch { margin-top: 1.4rem; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.65; }
+    .pitch strong { color: var(--ink); }
+    main { padding: 1.75rem 1.6rem 3rem; }
+    .headline {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin: 0.35rem 0 1.1rem;
+    }
+    .place { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    .card {
+      background: linear-gradient(165deg, rgba(255,252,248,.94), rgba(255,255,255,.72));
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      padding: 0.95rem 1rem 0.85rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 12px 30px rgba(27,45,36,.06);
+    }
+    .card .k { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .card .v { font-family: Fraunces, Georgia, serif; font-size: 1.55rem; margin-top: 0.25rem; }
+    .card .d { font-size: 0.82rem; margin-top: 0.2rem; color: var(--ink-soft); }
+    .d.bad { color: var(--danger); }
+    .d.ok { color: var(--accent); }
+    .grid2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1rem; margin-top: 1rem; }
+    h2 { font-family: Fraunces, Georgia, serif; font-size: 1.2rem; margin: 0 0 0.35rem; }
+    .muted { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.7rem; }
+    .bar-row { display: grid; grid-template-columns: 7.5rem 1fr 3.2rem; gap: 0.5rem; align-items: center; margin: 0.45rem 0; font-size: 0.82rem; }
+    .bar { height: 10px; background: rgba(27,45,36,.08); border-radius: 99px; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 99px; background: var(--accent); }
+    .bar > i.hot { background: var(--danger); }
+    .sig { list-style: none; }
+    .sig li { padding: 0.35rem 0; border-bottom: 1px solid var(--rule); font-size: 0.9rem; color: var(--ink-soft); line-height: 1.4; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.6rem; }
+    th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--rule); }
+    th { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .pill { display: inline-block; padding: 0.12rem 0.55rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; border: 1px solid; }
+    .pill.high, .pill.moderate { color: var(--danger); background: rgba(168,72,64,.1); border-color: rgba(168,72,64,.28); }
+    .pill.stable, .pill.improving { color: var(--accent); background: rgba(47,95,70,.1); border-color: rgba(47,95,70,.28); }
+    .warn, .okbox {
+      border-radius: 16px; padding: 0.75rem 0.9rem; margin: 0.6rem 0; font-size: 0.92rem; line-height: 1.45;
+    }
+    .warn { background: rgba(168,72,64,.08); border: 1px solid rgba(168,72,64,.22); }
+    .okbox { background: rgba(47,95,70,.08); border: 1px solid rgba(47,95,70,.22); }
+    button {
+      background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 999px;
+      font: inherit; font-weight: 600; padding: 0.55rem 1.2rem; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(47,95,70,.18);
+    }
+    button:hover { background: #264d39; }
+    pre.plan {
+      white-space: pre-wrap; font-family: Figtree, sans-serif; font-size: 0.92rem;
+      line-height: 1.55; color: var(--ink-soft); margin-top: 0.8rem;
+    }
+    .foot { margin-top: 1.6rem; font-size: 0.78rem; color: var(--muted); }
+    .foot a { color: var(--accent); }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--rule); }
+      .metrics, .grid2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .metrics, .grid2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="atmosphere" aria-hidden="true"></div>
-
-  <main class="deck" id="deck">
-    <section class="slide is-on" data-notes="Imagine you farm around Novi Sad. Annual rainfall is basically the same. That number is lying. AgriSense: plot-level copilot for Serbia.">
-      <div class="stage center">
-        <p class="eyebrow">Serbia · plot by plot</p>
-        <h1 class="title">AgriSense</h1>
-        <p class="lede">Climate-adaptive land copilot</p>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="Three questions a landowner actually needs answered — for this field, not the country.">
-      <div class="stage">
-        <p class="eyebrow">This plot</p>
-        <ol class="q-list">
-          <li><span class="n">01</span><p>What hit this field?</p></li>
-          <li><span class="n">02</span><p>Is summer drying?</p></li>
-          <li><span class="n">03</span><p>Keep maize — or change?</p></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="Novi Sad annual rain 599 to 609. Looks fine. Then point at summer water: minus 241 to minus 298. Fifty-seven millimetres more stress, hidden inside a stable year.">
-      <div class="stage">
-        <p class="eyebrow">Novi Sad</p>
-        <div class="pair">
-          <article class="card">
-            <p class="label">Annual rain</p>
-            <p class="num">599 <span class="arrow">→</span> 609</p>
-            <p class="hint">Looks fine.</p>
-          </article>
-          <article class="card danger">
-            <p class="label">Summer water</p>
-            <p class="num danger">−241 <span class="arrow">→</span> −298</p>
-            <p class="hint">−57 mm. Hidden.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="Maize peak demand is June–August — the window that deteriorated. Irrigation gap 327 to 389. Exposure 2.48. Wheat is largely stable: off the field by early July.">
-      <div class="stage">
-        <p class="eyebrow">Novi Sad · same climate</p>
-        <div class="split-crop">
-          <article class="card danger">
-            <p class="label">Maize</p>
-            <p class="num danger">2.48</p>
-            <p class="hint">Jun–Aug. 501k ha.</p>
-            <span class="pill bad">highest exposure</span>
-          </article>
-          <article class="card">
-            <p class="label">Wheat</p>
-            <p class="num">stable</p>
-            <p class="hint">Harvested first.</p>
-            <span class="pill ok">0.41</span>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="Zrenjanin: days at or above 35°C from 2.7 to 8.0. Almost a tripling. Summer deficit minus 260 to minus 312. Outlook 46 to 55 days above 30 — a range, not a forecast.">
-      <div class="stage center">
-        <p class="eyebrow">Zrenjanin · days ≥ 35°C</p>
-        <p class="display mega"><span class="muted">2.7</span> → <span style="color:var(--danger)">8.0</span></p>
-        <p class="lede">Nearly triple.</p>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="If the tool shouted crisis on every pin, you should not believe it. Niš annual rain 521 to 682. Summer deficit eased. Verdict: no change indicated.">
-      <div class="stage">
-        <p class="eyebrow">Niš</p>
-        <h2 class="punch">No change<br>indicated.</h2>
-        <div class="pair" style="margin-top:1.6rem">
-          <article class="card good">
-            <p class="label">Annual rain</p>
-            <p class="num good">521 <span class="arrow">→</span> 682</p>
-          </article>
-          <article class="card good">
-            <p class="label">Summer water</p>
-            <p class="num good">−287 <span class="arrow">→</span> −270</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="Memory: ERA5 via Open-Meteo. Exposure: FAO-56 on Serbia’s real crops. Plan: Grok explains the measured numbers — it does not generate them.">
-      <div class="stage">
-        <p class="eyebrow">Under the hood</p>
-        <div class="trio">
-          <article class="card">
-            <p class="label">Open data</p>
-            <h2>Memory</h2>
-            <p class="hint">ERA5</p>
-          </article>
-          <article class="card">
-            <p class="label">This crop</p>
-            <h2>Exposure</h2>
-            <p class="hint">FAO-56</p>
-          </article>
-          <article class="card">
-            <p class="label">This season</p>
-            <h2>Plan</h2>
-            <p class="hint">Grok</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" data-notes="The pitch is not AI for farms. Annual rain can hide a worse summer, and the right response is different in Novi Sad, Zrenjanin, and Niš. Not a forecast. A decision.">
-      <div class="stage center">
-        <p class="eyebrow">Measured · not a forecast</p>
-        <h2 class="punch" style="max-width:none">A decision.</h2>
-        <div class="pins">
-          <div class="pin hot"><i class="dot"></i><span>Subotica</span><small>mask</small></div>
-          <div class="pin hot"><i class="dot"></i><span>Novi Sad</span><small>mask</small></div>
-          <div class="pin hot"><i class="dot"></i><span>Zrenjanin</span><small>urgent</small></div>
-          <div class="pin"><i class="dot"></i><span>Belgrade</span><small>flat</small></div>
-          <div class="pin"><i class="dot"></i><span>Kraljevo</span><small>stable</small></div>
-          <div class="pin"><i class="dot"></i><span>Niš</span><small>better</small></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div class="notes" id="notes"></div>
-  <nav class="nav" id="dots" aria-label="Slides"></nav>
-  <p class="help">← → · N notes · F full</p>
-
+  <div class="shell">
+    <aside>
+      <h1>AgriSense</h1>
+      <p class="cap">Serbia field check — measured climate shift, crop exposure, action plan. Not an official forecast.</p>
+      <label for="pin">Field</label>
+      <select id="pin"></select>
+      <p class="pitch">
+        <strong>Pitch path</strong><br />
+        1. <strong>Novi Sad</strong> — rain gauge looks fine<br />
+        2. <strong>Zrenjanin</strong> — worst summer deficit<br />
+        3. <strong>Niš</strong> — stable counter-example
+      </p>
+    </aside>
+    <main id="main">Loading field data…</main>
+  </div>
   <script>
-    const slides = [...document.querySelectorAll(".slide")];
-    const dots = document.getElementById("dots");
-    const notes = document.getElementById("notes");
-    let i = 0;
+    const ORDER = ["Novi Sad", "Zrenjanin", "Subotica", "Belgrade", "Kraljevo", "Nis"];
+    const SIGNALS = {
+      heat_intensifying: "extreme-heat days have increased materially",
+      heat_stable: "extreme-heat days are broadly unchanged",
+      heat_easing: "extreme-heat days have decreased",
+      annual_rainfall_stable: "annual rainfall totals are broadly unchanged",
+      annual_rainfall_increasing: "annual rainfall totals have increased",
+      annual_rainfall_declining: "annual rainfall totals have decreased",
+      crop_water_demand_rising: "reference evapotranspiration has risen, so crops now need more water for the same yield",
+      summer_water_deficit_worsening: "the summer rainfall-minus-demand balance has deteriorated",
+      summer_water_deficit_stable: "the summer rainfall-minus-demand balance is broadly unchanged",
+      summer_water_deficit_easing: "the summer rainfall-minus-demand balance has improved",
+      annual_totals_masking_summer_stress:
+        "annual rainfall looks fine while the growing season has dried out, so yearly totals would mislead this farmer",
+      dry_spells_lengthening: "the typical longest dry spell each year has lengthened",
+    };
+    const RANK = { low: 1, "low-medium": 2, medium: 3, "medium-high": 4, high: 5 };
+    const CROPS = {
+      maize: { label: "Maize", kc_mid: 1.2, drought_sensitivity: "medium-high", peak_window: [6, 8], sown_ha_vojvodina: 500759 },
+      wheat: { label: "Wheat", kc_mid: 1.15, drought_sensitivity: "low-medium", peak_window: [4, 6], sown_ha_vojvodina: 305412 },
+      sunflower: { label: "Sunflower", kc_mid: 1.15, drought_sensitivity: "low-medium", peak_window: [6, 8], sown_ha_vojvodina: 220139 },
+      soybean: { label: "Soybean", kc_mid: 1.1, drought_sensitivity: "low-medium", peak_window: [7, 8], sown_ha_vojvodina: 172117 },
+      sugar_beet: { label: "Sugar beet", kc_mid: 1.15, drought_sensitivity: "low-medium", peak_window: [6, 9], sown_ha_vojvodina: 31539 },
+      sorghum: { label: "Sorghum", kc_mid: 1.1, drought_sensitivity: "low", peak_window: [6, 8], sown_ha_vojvodina: 0 },
+    };
 
-    slides.forEach((_, n) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.setAttribute("aria-label", "Slide " + (n + 1));
-      b.addEventListener("click", () => go(n));
-      dots.appendChild(b);
-    });
-
-    function go(n) {
-      i = (n + slides.length) % slides.length;
-      slides.forEach((s, k) => s.classList.toggle("is-on", k === i));
-      [...dots.children].forEach((d, k) => d.classList.toggle("on", k === i));
-      notes.textContent = slides[i].dataset.notes || "";
+    function overlap(win) {
+      const months = [];
+      for (let m = win[0]; m <= win[1]; m++) months.push(m);
+      const hit = months.filter((m) => m >= 6 && m <= 8).length;
+      return hit / months.length;
+    }
+    function band(score) {
+      if (score >= 1.5) return "high";
+      if (score >= 0.5) return "moderate";
+      if (score > -0.5) return "stable";
+      return "improving";
+    }
+    function assess(record) {
+      const crops = Object.entries(CROPS).map(([key, crop]) => {
+        const gap0 = Math.round(crop.kc_mid * record.baseline.summer_water_demand_mm - record.baseline.summer_rain_mm);
+        const gap1 = Math.round(crop.kc_mid * record.recent.summer_water_demand_mm - record.recent.summer_rain_mm);
+        const widening = gap1 - gap0;
+        const ov = overlap(crop.peak_window);
+        const score = Math.round((widening / 50) * (RANK[crop.drought_sensitivity] / 2) * ov * 100) / 100;
+        return {
+          crop: key, label: crop.label, sown_ha_vojvodina: crop.sown_ha_vojvodina,
+          irrigation_gap_baseline_mm: gap0, irrigation_gap_recent_mm: gap1,
+          gap_widening_mm: widening, summer_overlap: Math.round(ov * 100) / 100,
+          drought_sensitivity: crop.drought_sensitivity, exposure_score: score, exposure_band: band(score),
+        };
+      }).sort((a, b) => b.exposure_score - a.exposure_score);
+      const grown = crops.filter((c) => c.sown_ha_vojvodina > 0);
+      const atRisk = grown.filter((c) => c.exposure_band === "high" || c.exposure_band === "moderate");
+      const alts = crops.filter((c) => c.sown_ha_vojvodina === 0 && atRisk.length && c.exposure_score < Math.min(...atRisk.map((g) => g.exposure_score)));
+      return {
+        crops, crops_at_risk: atRisk.map((c) => c.crop), most_exposed: atRisk[0] ? atRisk[0].crop : null,
+        adaptation_candidates: alts.map((c) => c.crop),
+        verdict: atRisk.length ? "action_needed" : "no_change_indicated",
+      };
+    }
+    function headline(record, a) {
+      if ((record.signals || []).includes("annual_totals_masking_summer_stress"))
+        return "Annual rainfall looks fine — the summer water deficit is getting worse. That is the problem.";
+      if (a.verdict === "action_needed") {
+        const label = CROPS[a.most_exposed]?.label || "crops";
+        return `Action indicated — ${label} is the most exposed crop at this plot.`;
+      }
+      return "No material crop-exposure change indicated at this plot.";
+    }
+    function dlt(a, b) { return Math.round((b - a) * 10) / 10; }
+    function bar(val, max, hot) {
+      const w = Math.min(100, Math.abs(val) / max * 100);
+      return `<div class="bar"><i class="${hot ? "hot" : ""}" style="width:${w}%"></i></div>`;
+    }
+    function plan(record, a) {
+      const loc = record.location.name;
+      const b = record.baseline, r = record.recent;
+      const lines = ["WHAT CHANGED",
+        `At ${loc}, summer water balance moved from ${b.summer_water_balance_mm} mm (${b.period}) to ${r.summer_water_balance_mm} mm (${r.period}) (${dlt(b.summer_water_balance_mm, r.summer_water_balance_mm) >= 0 ? "+" : ""}${dlt(b.summer_water_balance_mm, r.summer_water_balance_mm)} mm). Annual rainfall changed by ${dlt(b.precip_mm, r.precip_mm) >= 0 ? "+" : ""}${dlt(b.precip_mm, r.precip_mm)} mm (${b.precip_mm} → ${r.precip_mm} mm) while summer ET0 rose ${dlt(b.summer_water_demand_mm, r.summer_water_demand_mm) >= 0 ? "+" : ""}${dlt(b.summer_water_demand_mm, r.summer_water_demand_mm)} mm, days ≥30°C rose ${dlt(b.hot_days_30, r.hot_days_30)}, and days ≥35°C rose ${dlt(b.hot_days_35, r.hot_days_35)}.`,
+        "", "WHAT IT MEANS FOR YOUR CROPS"];
+      if (a.verdict !== "action_needed") {
+        lines.push("Crop exposure scores stay in the stable/improving band. Do not force a crop switch from this climate signal alone.");
+      } else {
+        const bits = a.crops.filter((e) => a.crops_at_risk.includes(e.crop)).slice(0, 4).map(
+          (e) => `${e.label} exposure ${e.exposure_band} (irrigation gap ${e.irrigation_gap_baseline_mm} → ${e.irrigation_gap_recent_mm} mm, ${e.gap_widening_mm >= 0 ? "+" : ""}${e.gap_widening_mm} mm)`
+        );
+        lines.push(bits.join("; ") + ".");
+        if (a.adaptation_candidates.length)
+          lines.push("Lower-exposure alternatives to consider: " + a.adaptation_candidates.map((k) => CROPS[k].label).join(", ") + ".");
+      }
+      lines.push("", "WHAT TO DO");
+      if (a.verdict === "action_needed") {
+        lines.push(
+          "1. Before next sowing (Feb–Apr): prioritise water-efficient or shorter-maturity options for the most exposed summer crop — do not pick a brand from this tool.",
+          "2. In spring: plan irrigation or mulching for the crop whose peak months overlap Jun–Aug most (see exposure table).",
+          "3. This winter: treat annual rainfall totals as misleading if the masking signal is present — track summer rain minus ET0 instead.",
+          "4. If adapting rotation: trial a lower-sensitivity summer crop on a strip before a full switch."
+        );
+      } else {
+        lines.push(
+          "1. Keep current rotation; re-check this plot after the next hot summer.",
+          "2. Still log summer rainfall and irrigation hours — stability can reverse.",
+          "3. Use the model range below as context, not as a forecast."
+        );
+      }
+      const o = record.outlook || {};
+      lines.push("", "WHAT TO WATCH");
+      if (o.hot_days_30_range) {
+        lines.push(`Model range for ${o.period}: ${o.hot_days_30_range[0]}–${o.hot_days_30_range[1]} days ≥30°C/year across ${(o.models || []).length} models (${o.confidence || "illustrative range"}). Also watch June–August rainfall versus ET0 each season.`);
+      } else {
+        lines.push("June–August rainfall versus ET0, and days ≥35°C each summer.");
+      }
+      lines.push("\nSource: offline plan from pins.json + FAO crop table (no LLM). Figures are measured or FAO-derived.");
+      return lines.join("\n");
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) {
-        e.preventDefault();
-        go(i + 1);
-      } else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) {
-        e.preventDefault();
-        go(i - 1);
-      } else if (e.key === "Home") {
-        go(0);
-      } else if (e.key === "End") {
-        go(slides.length - 1);
-      } else if (e.key === "n" || e.key === "N") {
-        document.body.classList.toggle("show-notes");
-      } else if (e.key === "f" || e.key === "F") {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else document.exitFullscreen();
-      }
-    });
+    let PINS = [];
+    function render(name) {
+      const record = PINS.find((p) => p.location.name === name);
+      if (!record) return;
+      const a = assess(record);
+      const b = record.baseline, r = record.recent;
+      const loc = record.location;
+      const balD = dlt(b.summer_water_balance_mm, r.summer_water_balance_mm);
+      const rainD = dlt(b.precip_mm, r.precip_mm);
+      const etD = dlt(b.summer_water_demand_mm, r.summer_water_demand_mm);
+      const hotD = dlt(b.hot_days_30, r.hot_days_30);
+      const rainMax = Math.max(b.summer_rain_mm, r.summer_rain_mm, b.summer_water_demand_mm, r.summer_water_demand_mm);
+      const heatMax = Math.max(b.hot_days_30, r.hot_days_30, 1);
+      const rows = a.crops.map((e) => `<tr>
+        <td>${e.label}</td>
+        <td><span class="pill ${e.exposure_band}">${e.exposure_band}</span></td>
+        <td>${e.exposure_score}</td>
+        <td>${e.irrigation_gap_baseline_mm} → ${e.irrigation_gap_recent_mm}</td>
+        <td>${e.gap_widening_mm >= 0 ? "+" : ""}${e.gap_widening_mm}</td>
+        <td>${e.sown_ha_vojvodina ? e.sown_ha_vojvodina.toLocaleString() : "—"}</td>
+      </tr>`).join("");
+      const alert = a.verdict === "action_needed"
+        ? `<div class="warn">Action needed — at risk: <strong>${a.crops_at_risk.map((k) => CROPS[k].label).join(", ")}</strong>. Most exposed: <strong>${CROPS[a.most_exposed].label}</strong>.</div>`
+        : `<div class="okbox">No change indicated — no crop is in the high/moderate exposure band.</div>`;
+      const o = record.outlook || {};
+      document.getElementById("main").innerHTML = `
+        <p class="place">${loc.name} · ${loc.region || "Serbia"}</p>
+        <p class="headline">${headline(record, a)}</p>
+        <div class="metrics">
+          <div class="card"><div class="k">Summer balance</div><div class="v">${r.summer_water_balance_mm} mm</div><div class="d ${balD < 0 ? "bad" : "ok"}">${balD >= 0 ? "+" : ""}${balD} mm vs baseline</div></div>
+          <div class="card"><div class="k">Annual rain</div><div class="v">${r.precip_mm} mm</div><div class="d">${rainD >= 0 ? "+" : ""}${rainD} mm</div></div>
+          <div class="card"><div class="k">Summer ET0</div><div class="v">${r.summer_water_demand_mm} mm</div><div class="d ${etD > 0 ? "bad" : ""}">${etD >= 0 ? "+" : ""}${etD} mm</div></div>
+          <div class="card"><div class="k">Days ≥30°C</div><div class="v">${r.hot_days_30}</div><div class="d ${hotD > 0 ? "bad" : ""}">${hotD >= 0 ? "+" : ""}${hotD}</div></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <h2>Your rain gauge can lie</h2>
+            <p class="muted">Annual totals may look stable while June–August rainfall minus ET0 worsens.</p>
+            <div class="bar-row"><span>Summer rain ${b.period.slice(0,4)}</span>${bar(b.summer_rain_mm, rainMax, false)}<span>${b.summer_rain_mm}</span></div>
+            <div class="bar-row"><span>Summer rain ${r.period.slice(0,4)}</span>${bar(r.summer_rain_mm, rainMax, false)}<span>${r.summer_rain_mm}</span></div>
+            <div class="bar-row"><span>ET0 demand ${b.period.slice(0,4)}</span>${bar(b.summer_water_demand_mm, rainMax, true)}<span>${b.summer_water_demand_mm}</span></div>
+            <div class="bar-row"><span>ET0 demand ${r.period.slice(0,4)}</span>${bar(r.summer_water_demand_mm, rainMax, true)}<span>${r.summer_water_demand_mm}</span></div>
+            <h2 style="margin-top:1.1rem">Heat</h2>
+            <div class="bar-row"><span>Days ≥30 ${b.period.slice(0,4)}</span>${bar(b.hot_days_30, heatMax, true)}<span>${b.hot_days_30}</span></div>
+            <div class="bar-row"><span>Days ≥30 ${r.period.slice(0,4)}</span>${bar(r.hot_days_30, heatMax, true)}<span>${r.hot_days_30}</span></div>
+            <div class="bar-row"><span>Days ≥35 ${b.period.slice(0,4)}</span>${bar(b.hot_days_35, heatMax, true)}<span>${b.hot_days_35}</span></div>
+            <div class="bar-row"><span>Days ≥35 ${r.period.slice(0,4)}</span>${bar(r.hot_days_35, heatMax, true)}<span>${r.hot_days_35}</span></div>
+          </div>
+          <div>
+            <div class="card">
+              <h2>Signals</h2>
+              <ul class="sig">${(record.signals || []).map((s) => `<li>${SIGNALS[s] || s}</li>`).join("")}</ul>
+            </div>
+            ${o.hot_days_30_range ? `<div class="card" style="margin-top:.75rem">
+              <h2>Outlook (model range)</h2>
+              <p class="muted">${o.period} days ≥30°C: <strong>${o.hot_days_30_range[0]} – ${o.hot_days_30_range[1]}</strong>. Rain ${o.precip_mm_range[0]}–${o.precip_mm_range[1]} mm. <em>${o.confidence || ""}</em></p>
+            </div>` : ""}
+          </div>
+        </div>
+        <div class="card" style="margin-top:1rem">
+          <h2>Crop exposure (FAO-56)</h2>
+          ${alert}
+          <table>
+            <thead><tr><th>Crop</th><th>Exposure</th><th>Score</th><th>Gap mm</th><th>Widening</th><th>Vojvodina ha</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top:1rem">
+          <h2>Action plan</h2>
+          <p class="muted">Offline plan — figures only from pins.json + FAO crop table.</p>
+          <button type="button" id="gen">Generate plan</button>
+          <pre class="plan" id="plan" hidden></pre>
+        </div>
+        <p class="foot">Open-Meteo ERA5 + CMIP6 · FAO Irrigation Manual 3 · SoilGrids unavailable for Europe ·
+          Pitch deck (optional): <a href="./deck.html">slides</a>. Full Streamlit app: <code>streamlit run streamlit_app.py</code>.</p>
+      `;
+      const btn = document.getElementById("gen");
+      const pre = document.getElementById("plan");
+      btn.addEventListener("click", () => {
+        pre.hidden = false;
+        pre.textContent = plan(record, a);
+      });
+    }
 
-    document.getElementById("deck").addEventListener("click", (e) => {
-      if (e.target.closest("button")) return;
-      go(i + 1);
-    });
-
-    let touchX = null;
-    document.addEventListener("touchstart", (e) => { touchX = e.changedTouches[0].screenX; }, { passive: true });
-    document.addEventListener("touchend", (e) => {
-      if (touchX == null) return;
-      const dx = e.changedTouches[0].screenX - touchX;
-      if (Math.abs(dx) > 50) go(i + (dx < 0 ? 1 : -1));
-      touchX = null;
-    });
-
-    go(0);
+    fetch("./data/pins.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("pins.json " + r.status);
+        return r.json();
+      })
+      .then((pins) => {
+        PINS = pins;
+        const names = ORDER.filter((n) => pins.some((p) => p.location.name === n));
+        const sel = document.getElementById("pin");
+        sel.innerHTML = names.map((n) => `<option value="${n}">${n}</option>`).join("");
+        sel.addEventListener("change", () => render(sel.value));
+        render(names[0] || pins[0].location.name);
+      })
+      .catch((err) => {
+        document.getElementById("main").innerHTML = `<p class="headline">Could not load field data.</p><p>${err.message}</p>`;
+      });
   </script>
 </body>
 </html>

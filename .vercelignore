@@ -1,9 +1,8 @@
-# Streamlit entry — Vercel otherwise treats app.py as a Python serverless
-# function and fails looking for `app` / `handler`.
-app.py
+# Keep Streamlit and Python deps out of the Vercel upload.
+# Do not ignore `data/` — the static app needs pins.json.
+streamlit_app.py
 requirements.txt
 agrisense
-data
 scripts
 .venv
 venv
@@ -15,3 +14,5 @@ node_modules
 .env
 .env.local
 *.pptx
+AgriSense-demo.pptx
+docs/*.pptx

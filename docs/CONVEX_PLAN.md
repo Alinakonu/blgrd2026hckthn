@@ -25,7 +25,7 @@ Additive only. Nothing existing was replaced, and the app still runs with Convex
 | `convex/advisories.ts` | `recent`, `forLocation`, `add` |
 | `agrisense/store.py` | Data access with automatic fallback to `data/pins.json` |
 | `scripts/push_to_convex.py` | Seeds the deployment and verifies the read-back |
-| `app.py` | Loads via `store`, logs each plan, shows a live feed |
+| `streamlit_app.py` | Loads via `store`, logs each plan, shows a live feed |
 
 The `pins` table stores the whole analysis document in a `record` field, so the contract from `PLAN.md` section 2 is unchanged. Nothing downstream has to know where the data came from.
 
