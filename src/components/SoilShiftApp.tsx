@@ -80,18 +80,18 @@ export default function SoilShiftApp() {
     <div className="relative min-h-screen">
       <header className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden px-4 pb-14 pt-8 sm:px-8 sm:pb-20">
         <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-[rgba(61,120,72,0.35)] blur-3xl" />
-          <div className="absolute right-[-4rem] top-24 h-80 w-80 rounded-full bg-[rgba(214,255,75,0.12)] blur-3xl" />
-          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[var(--bg)] to-transparent" />
+          <div className="absolute -left-20 top-8 h-80 w-80 rounded-full bg-[rgba(168,196,176,0.55)] blur-3xl" />
+          <div className="absolute right-[-3rem] top-16 h-72 w-72 rounded-full bg-[rgba(214,226,216,0.7)] blur-3xl" />
+          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[var(--bg)] to-transparent" />
         </div>
 
         <nav className="relative mb-auto flex items-center justify-between animate-hero">
-          <span className="text-[11px] uppercase tracking-[0.28em] text-[var(--muted)]">
-            AgriSense × climate horizons
+          <span className="text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
+            AgriSense · field notes
           </span>
           <a
             href="#locate"
-            className="text-[11px] uppercase tracking-[0.2em] text-[var(--ink-soft)] transition hover:text-[var(--accent)]"
+            className="text-[11px] uppercase tracking-[0.18em] text-[var(--ink-soft)] transition hover:text-[var(--accent)]"
           >
             Locate field ↓
           </a>
@@ -99,7 +99,7 @@ export default function SoilShiftApp() {
 
         <div className="relative mx-auto w-full max-w-6xl">
           <p
-            className="animate-hero font-[family-name:var(--font-display)] text-[clamp(4.5rem,18vw,11rem)] leading-[0.82] tracking-[-0.05em] text-[var(--ink)]"
+            className="animate-hero font-[family-name:var(--font-display)] text-[clamp(4.25rem,16vw,9.5rem)] leading-[0.86] tracking-[-0.04em] text-[var(--ink)]"
             style={{ animationDelay: "80ms" }}
           >
             Soil
@@ -113,15 +113,15 @@ export default function SoilShiftApp() {
               Pin a field. Pick a crop. Get soil adaptations for the 2030s and 2050s.
             </h1>
             <p className="text-sm leading-relaxed text-[var(--ink-soft)] sm:text-base">
-              Not a weather forecast — a ranked checklist for how this soil should
-              change before climate stress hits yields.
+              Not a weather forecast — a calm, ranked checklist for how this soil
+              should change before climate stress hits yields.
             </p>
             <div className="flex flex-wrap gap-3 pt-1">
               <button
                 type="button"
                 onClick={runAnalyze}
                 disabled={pending}
-                className="btn-primary animate-glow px-6 py-3 text-sm disabled:opacity-60"
+                className="btn-primary px-6 py-3 text-sm disabled:opacity-60"
               >
                 {pending ? "Reading the field…" : "Run adaptation plan"}
               </button>
@@ -216,7 +216,7 @@ export default function SoilShiftApp() {
               </label>
               <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--muted)]">
                 Horizon
-                <div className="relative mt-1.5 grid grid-cols-2 border border-[var(--rule-strong)] bg-black/30 p-1">
+                <div className="horizon-track relative mt-1.5 grid grid-cols-2 p-1">
                   <span
                     key={horizonKey}
                     className="horizon-indicator pointer-events-none absolute bottom-1 top-1 w-[calc(50%-4px)] bg-[var(--accent)]"
@@ -243,7 +243,7 @@ export default function SoilShiftApp() {
             </div>
 
             <div className="space-y-3">
-              <details className="border border-[var(--rule)] bg-black/20 px-3 py-3">
+              <details className="soft-panel px-3 py-3">
                 <summary className="cursor-pointer text-sm text-[var(--ink)]">
                   Optional AgriSense soil telemetry (NPK / pH / moisture)
                 </summary>

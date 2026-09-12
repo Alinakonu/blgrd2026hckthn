@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Syne, Figtree } from "next/font/google";
+import { Fraunces, Figtree } from "next/font/google";
 import "./globals.css";
 
-const display = Syne({
+const display = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["500", "600", "700"],
 });
 
 const sans = Figtree({
