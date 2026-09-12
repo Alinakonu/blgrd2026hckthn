@@ -202,6 +202,9 @@ def compute_indices(daily):
     summer_precip = []
     summer_et0 = []
     summer_moisture = []
+    season_precip = []
+    season_et0 = []
+    gdd_base0_total = 0.0
     peak = None
 
     for _year, rows in per_year.items():
@@ -220,10 +223,17 @@ def compute_indices(daily):
             peak = max(year_max) if peak is None else max(peak, max(year_max))
 
     for date, high, low, rain, demand, wet in zip(dates, tmax, tmin, precip, et0, moisture):
-        if _in_months(date, GROWING_SEASON) and high is not None and low is not None:
-            # Maize convention: base 10 degrees C, upper cap 30 degrees C.
-            mean_temp = (min(high, 30.0) + max(low, 10.0)) / 2
-            gdd_total += max(0.0, mean_temp - 10.0)
+        in_season = _in_months(date, GROWING_SEASON)
+        if in_season and high is not None and low is not None:
+            # Warm-season crops (maize, soy): base 10 C, upper cap 30 C.
+            gdd_total += max(0.0, (min(high, 30.0) + max(low, 10.0)) / 2 - 10.0)
+            # Cool-season crops (wheat, barley) use base 0 with no clamping.
+            gdd_base0_total += max(0.0, (high + low) / 2)
+        if in_season:
+            if rain is not None:
+                season_precip.append(rain)
+            if demand is not None:
+                season_et0.append(demand)
         if _in_months(date, SUMMER):
             if rain is not None:
                 summer_precip.append(rain)
@@ -234,6 +244,8 @@ def compute_indices(daily):
 
     summer_rain_mm = round(sum(summer_precip) / years) if summer_precip else None
     summer_demand_mm = round(sum(summer_et0) / years) if summer_et0 else None
+    season_rain_mm = round(sum(season_precip) / years) if season_precip else None
+    season_demand_mm = round(sum(season_et0) / years) if season_et0 else None
     moisture_mean = _mean(summer_moisture)
 
     return {
@@ -245,6 +257,9 @@ def compute_indices(daily):
         "heavy_rain_days_20": round(heavy_rain / years, 1),
         "max_dry_streak_days": round(sum(dry_streaks) / years, 1),
         "growing_degree_days": round(gdd_total / years),
+        "growing_degree_days_base0": round(gdd_base0_total / years),
+        "season_rain_mm": season_rain_mm,
+        "season_water_demand_mm": season_demand_mm,
         "summer_rain_mm": summer_rain_mm,
         "summer_water_demand_mm": summer_demand_mm,
         "summer_water_balance_mm": (
