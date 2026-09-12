@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "echo skip",
-  "buildCommand": "mkdir -p public && cp AgriSense-demo.html public/index.html",
+  "buildCommand": "mkdir -p public/data && cp data/pins.json public/data/pins.json && cp AgriSense-demo.html public/deck.html",
   "outputDirectory": "public"
 }

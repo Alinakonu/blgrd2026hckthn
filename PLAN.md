@@ -259,13 +259,13 @@ Naming these so neither of us drifts:
 - [x] A5 `data/pins.json` committed
 
 **Track B**
-- [x] B1 map click or dropdown working — Streamlit `app.py` dropdown over `data/pins.json` (+ map marker)
+- [x] B1 map click or dropdown working — Streamlit `streamlit_app.py` dropdown over `data/pins.json` (+ map marker)
 - [x] B2 crop recommender sane for Serbia — `agrisense/crops.py` FAO table (Kaggle dropped; see `docs/CROP_MODEL.md`)
 - [x] B3 LLM prompt producing specific advice — `agrisense/prompt.py` + offline deterministic plan in UI; live Grok optional via `XAI_API_KEY`
 - [x] B4 GEV in-or-out decision recorded — **out** (`docs/GEV_DECISION.md`)
 
 **Together**
 - [x] Sync + 4 decisions made — dropdown + FAO table + GEV out + cached pins on click
-- [x] End-to-end demo runs — `streamlit run app.py`
+- [x] End-to-end demo runs — `streamlit run streamlit_app.py`
 - [x] Offline fallback verified — pins.json + offline action plan (no API key)
 - [ ] Pitch recorded

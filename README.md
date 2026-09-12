@@ -9,15 +9,15 @@ Hackathon demo for Belgrade. Track A climate pipeline is done; this repo now als
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 ## Deploy
 
-The interactive app is **Streamlit**, not a Python serverless function. Vercel cannot run `streamlit run app.py` (it looks for an `app` / `handler` export in `app.py` and fails).
+Root `app.py` is a tiny WSGI callable so Vercel’s Python detector is satisfied (it requires `app` / `handler`). The real product is Streamlit.
 
-- **Vercel** (`vercel.json`) ships the static demo deck from `AgriSense-demo.html` → `/`. That is the public URL.
-- **Live field UI:** `streamlit run app.py` locally, or host on Streamlit Community Cloud / Render (`streamlit run app.py`). Do not set the Vercel framework to Python.
+- **Vercel** serves the **interactive field app** (`public/index.html` + `data/pins.json`). Slides live at `/deck.html`, not `/`.
+- **Full Streamlit UI:** `streamlit run streamlit_app.py` locally, or Streamlit Community Cloud / Render.
 
 1. Open the app → pin **Novi Sad**.
 2. Show: annual rain flat/up, summer balance worse → “your rain gauge can lie”.
@@ -30,7 +30,7 @@ Optional live LLM (Grok via xAI):
 ```bash
 # terminal (recommended for demos)
 export XAI_API_KEY="xai-..."   # from https://console.x.ai
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 Or paste the key in the sidebar field **xAI API key** (session-only, not written to disk), then toggle **Call Grok for advice**.
@@ -43,7 +43,8 @@ Or paste the key in the sidebar field **xAI API key** (session-only, not written
 | `agrisense/climate.py` | ERA5 + CMIP6 fetch / indices (Track A) |
 | `agrisense/crops.py` | FAO-56 crop exposure for Serbia majors |
 | `agrisense/prompt.py` | LLM prompt builder (numbers in → advice out) |
-| `app.py` | Streamlit UI (dropdown → charts → crops → plan) |
+| `streamlit_app.py` | Streamlit UI (dropdown → charts → crops → plan) |
+| `app.py` | Vercel WSGI entry (serves the static HTML deck) |
 | `scripts/build_pins.py` | Rebuild pins (slow, rate-limited — do not put on click path) |
 | `scripts/preview_advice.py` | Print assessments + prompts offline |
 | `docs/` | Crop model, LLM prompt, data limits, GEV decision (**out**) |
