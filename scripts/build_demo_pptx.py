@@ -14,7 +14,8 @@ from pptx.util import Inches, Pt
 from lxml import etree
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "docs" / "AgriSense-demo.pptx"
+OUT = ROOT / "AgriSense-demo.pptx"
+OUT_DOCS = ROOT / "docs" / "AgriSense-demo.pptx"
 
 # Field-day tokens from the Streamlit / HTML deck
 BG = RGBColor(0xE6, 0xED, 0xE7)
@@ -304,7 +305,10 @@ def build():
     notes(s, "The pitch is not AI for farms. Annual rain can hide a worse summer, and the right response is different in Novi Sad, Zrenjanin, and Niš. Not a forecast. A decision.")
 
     prs.save(OUT)
+    OUT_DOCS.parent.mkdir(parents=True, exist_ok=True)
+    prs.save(OUT_DOCS)
     print(f"Wrote {OUT}")
+    print(f"Wrote {OUT_DOCS}")
 
 
 if __name__ == "__main__":
