@@ -12,6 +12,13 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## Deploy
+
+The interactive app is **Streamlit**, not a Python serverless function. Vercel cannot run `streamlit run app.py` (it looks for an `app` / `handler` export in `app.py` and fails).
+
+- **Vercel** (`vercel.json`) ships the static demo deck from `AgriSense-demo.html` → `/`. That is the public URL.
+- **Live field UI:** `streamlit run app.py` locally, or host on Streamlit Community Cloud / Render (`streamlit run app.py`). Do not set the Vercel framework to Python.
+
 1. Open the app → pin **Novi Sad**.
 2. Show: annual rain flat/up, summer balance worse → “your rain gauge can lie”.
 3. Crop table: maize most exposed; sorghum as adaptation candidate.

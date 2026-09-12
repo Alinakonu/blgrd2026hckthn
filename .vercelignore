@@ -1,0 +1,17 @@
+# Streamlit entry — Vercel otherwise treats app.py as a Python serverless
+# function and fails looking for `app` / `handler`.
+app.py
+requirements.txt
+agrisense
+data
+scripts
+.venv
+venv
+__pycache__
+*.pyc
+.streamlit
+convex
+node_modules
+.env
+.env.local
+*.pptx
