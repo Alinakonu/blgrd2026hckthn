@@ -1,0 +1,12 @@
+{
+  "name": "agrisense-convex-plots",
+  "private": true,
+  "description": "Minimal Convex backend so Streamlit can save farmer plots",
+  "scripts": {
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy"
+  },
+  "dependencies": {
+    "convex": "^1.21.0"
+  }
+}

@@ -28,6 +28,19 @@ streamlit run app.py
 
 Or paste the key in the sidebar field **xAI API key** (session-only, not written to disk), then toggle **Call Grok for advice**.
 
+### Optional: Convex plot locker (~30 min)
+
+Sidebar **Save farmer plot** works offline by default (`data/saved_plots.local.json`).
+To use Convex (sponsor backend):
+
+```bash
+npm install && npx convex dev
+export CONVEX_SITE_URL="https://<deployment>.convex.site"
+streamlit run app.py
+```
+
+Details: [`docs/CONVEX_PLOTS.md`](docs/CONVEX_PLOTS.md).
+
 ## What is in the box
 
 | Path | Role |
@@ -37,9 +50,12 @@ Or paste the key in the sidebar field **xAI API key** (session-only, not written
 | `agrisense/crops.py` | FAO-56 crop exposure for Serbia majors |
 | `agrisense/prompt.py` | LLM prompt builder (numbers in → advice out) |
 | `app.py` | Streamlit UI (dropdown → charts → crops → plan) |
+| `convex/` | Minimal Convex plot locker (`GET/POST /plots`) |
+| `agrisense/plots_store.py` | Streamlit client — Convex if `CONVEX_SITE_URL` set, else local JSON |
 | `scripts/build_pins.py` | Rebuild pins (slow, rate-limited — do not put on click path) |
 | `scripts/preview_advice.py` | Print assessments + prompts offline |
 | `docs/` | Crop model, LLM prompt, data limits, GEV decision (**out**) |
+| `docs/CONVEX_PLOTS.md` | ~30 min Convex setup for “Save farmer plot” |
 
 ## Design rules (do not break in the demo)
 
@@ -56,6 +72,8 @@ Or paste the key in the sidebar field **xAI API key** (session-only, not written
 | `XAI_API_KEY` / `GROK_API_KEY` | No | Enables live Grok plan (or paste in the sidebar) |
 | `XAI_MODEL` | No | Default `grok-3` (falls back if needed) |
 | `XAI_API_URL` | No | Default `https://api.x.ai/v1/chat/completions` |
+| `CONVEX_SITE_URL` | No | Convex HTTP Actions URL (`https://….convex.site`) for plot locker |
+| `PLOTS_HTTP_TOKEN` | No | Optional shared secret for `/plots` (also set in Convex env) |
 
 No keys needed for the offline happy path.
 

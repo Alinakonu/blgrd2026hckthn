@@ -6,8 +6,13 @@ venv/
 .env.local
 .streamlit/secrets.toml
 
+# plot locker — local fallback when CONVEX_SITE_URL is unset
+data/saved_plots.local.json
+
 # leftover from other branch experiments — do not commit
 node_modules/
 .next/
 next-env.d.ts
 tsconfig.tsbuildinfo
+.convex/
+convex/_generated/

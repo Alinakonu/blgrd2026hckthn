@@ -18,6 +18,7 @@ import requests
 import streamlit as st
 
 from agrisense import crops as crop_model
+from agrisense import plots_store
 from agrisense.prompt import SIGNAL_TEXT, build_messages, build_user_prompt
 
 ROOT = Path(__file__).resolve().parent
@@ -1237,6 +1238,44 @@ def main() -> None:
             help="Needs an xAI key (sidebar or XAI_API_KEY). Off = deterministic offline plan.",
         )
         show_prompt = st.toggle("Show LLM prompt (debug)", value=False)
+
+        st.divider()
+        st.markdown("#### Save farmer plot")
+        st.caption(
+            f"Backend: **{plots_store.backend_label()}** · "
+            "set `CONVEX_SITE_URL` to use Convex (see `docs/CONVEX_PLOTS.md`)."
+        )
+        plot_label = st.text_input(
+            "Plot name",
+            value=f"{name} field",
+            help="Simple label a farmer would recognize — Convex stores it with this pin’s climate snapshot.",
+        )
+        # Need assessment fields below — save uses session after assess; preview pin first.
+        if "pending_plot_save" not in st.session_state:
+            st.session_state["pending_plot_save"] = False
+        if st.button("Save plot", use_container_width=True):
+            st.session_state["pending_plot_save"] = True
+            st.session_state["pending_plot_label"] = plot_label.strip() or f"{name} field"
+
+        try:
+            saved = plots_store.list_plots()
+        except Exception as exc:  # noqa: BLE001 — show in sidebar, keep demo alive
+            saved = []
+            st.caption(f"Could not load plots ({exc})")
+        if saved:
+            preview = [
+                {
+                    "Plot": row.get("label") or row.get("pinName"),
+                    "Pin": row.get("pinName"),
+                    "Balance": row.get("summerBalanceMm"),
+                    "≥30°C": row.get("hotDays30"),
+                }
+                for row in saved[:8]
+            ]
+            st.dataframe(preview, use_container_width=True, hide_index=True)
+        else:
+            st.caption("No saved plots yet — pick a pin and click Save plot.")
+
         st.divider()
         st.caption(
             f"Offline store: `{PINS_PATH.relative_to(ROOT)}` · {len(pins)} pins"
@@ -1246,6 +1285,26 @@ def main() -> None:
     assessment = crop_model.assess(record)
     loc = record["location"]
     base, recent = record["baseline"], record["recent"]
+
+    if st.session_state.pop("pending_plot_save", False):
+        label = st.session_state.pop("pending_plot_label", f"{loc['name']} field")
+        payload = {
+            "label": label,
+            "pinName": loc["name"],
+            "region": loc.get("region", "Serbia"),
+            "lat": float(loc["lat"]),
+            "lon": float(loc["lon"]),
+            "summerBalanceMm": float(recent["summer_water_balance_mm"]),
+            "hotDays30": float(recent["hot_days_30"]),
+            "hotDays35": float(recent["hot_days_35"]),
+            "verdict": str(assessment.get("verdict", "")),
+        }
+        try:
+            plots_store.save_plot(payload)
+            st.sidebar.success(f"Saved “{label}” via {plots_store.backend_label()}.")
+            st.rerun()
+        except Exception as exc:  # noqa: BLE001
+            st.sidebar.error(f"Save failed: {exc}")
 
     st.subheader(f"{loc['name']} · {loc.get('region', 'Serbia')}")
     st.write(headline_for(record, assessment))
