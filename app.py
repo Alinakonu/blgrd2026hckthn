@@ -208,6 +208,21 @@ div[data-testid="stMap"] {
   max-width: 100%;
 }
 
+
+/* Nuke any sage theme wash under Altair / Vega */
+[data-testid="stVegaLiteChart"],
+[data-testid="stArrowVegaLiteChart"],
+[data-testid="stVegaLiteChart"] > div,
+[data-testid="stArrowVegaLiteChart"] > div,
+[data-testid="stVegaLiteChart"] iframe,
+div[data-testid="stVegaLiteChart"] [class*="vega"],
+div[data-testid="stArrowVegaLiteChart"] [class*="vega"],
+[data-testid="element-container"]:has([data-testid="stVegaLiteChart"]),
+[data-testid="element-container"]:has([data-testid="stArrowVegaLiteChart"]) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
 /* Keep Vega SVG inside the white panel — no green wash / no right-column eclipse */
 [data-testid="stVegaLiteChart"] > div,
 [data-testid="stArrowVegaLiteChart"] > div,
@@ -673,8 +688,8 @@ def _paired_bar_chart(
             gridColor="rgba(27, 45, 36, 0.08)",
             domainColor="rgba(27, 45, 36, 0.15)",
         )
-        .configure(background="white")
-        .configure_view(strokeWidth=0, fill="white")
+        .configure(background="#ffffff")
+        .configure_view(strokeWidth=0, fill="#ffffff")
     )
 
 
@@ -850,8 +865,8 @@ def crop_exposure_chart(assessment: dict) -> alt.Chart:
             gridColor="rgba(27, 45, 36, 0.08)",
             domainColor="rgba(27, 45, 36, 0.15)",
         )
-        .configure(background="white")
-        .configure_view(strokeWidth=0, fill="white")
+        .configure(background="#ffffff")
+        .configure_view(strokeWidth=0, fill="#ffffff")
         .configure_legend(
             labelColor="#3e5349",
             titleColor="#6a7c72",
@@ -1239,11 +1254,11 @@ def main() -> None:
             "Recent colored vs this pin’s baseline — gold = within ~1σ (average span)."
         )
         st.markdown(score_legend_html(), unsafe_allow_html=True)
-        st.altair_chart(water_balance_chart(record), use_container_width=True)
+        st.altair_chart(water_balance_chart(record), use_container_width=True, theme=None)
 
         st.markdown("#### Heat")
         st.caption("More hot days than baseline reads as worse (red); near stays gold.")
-        st.altair_chart(heat_chart(record), use_container_width=True)
+        st.altair_chart(heat_chart(record), use_container_width=True, theme=None)
 
     with right:
         st.markdown("#### Signals")
@@ -1282,7 +1297,7 @@ def main() -> None:
             )
             st.caption(f"Adaptation candidates: {alts}")
 
-    st.altair_chart(crop_exposure_chart(assessment), use_container_width=True)
+    st.altair_chart(crop_exposure_chart(assessment), use_container_width=True, theme=None)
     st.dataframe(crop_table(assessment), use_container_width=True, hide_index=True)
 
     thermal = assessment.get("thermal") or {}
