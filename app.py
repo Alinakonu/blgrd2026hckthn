@@ -886,14 +886,10 @@ def outlook_card_html(record: dict) -> str:
     rain_lo, rain_hi = outlook["precip_mm_range"]
     rain_med = outlook.get("precip_mm_median", (rain_lo + rain_hi) / 2)
     recent_hot = recent["hot_days_30"]
-    recent_hot35 = recent["hot_days_35"]
-    base_hot35 = record["baseline"]["hot_days_35"]
     recent_rain = recent["precip_mm"]
 
     heat_status = _status_higher_worse(med, recent_hot, tol_frac=0.08)
     heat_color = _status_color(heat_status)
-    hot35_status = _status_higher_worse(recent_hot35, base_hot35, tol_frac=0.08)
-    hot35_color = _status_color(hot35_status)
     rain_mid = rain_med
     rain_status = _status_higher_better(rain_mid, recent_rain, tol_frac=0.08)
     rain_color = _status_color(rain_status)
@@ -917,11 +913,10 @@ def outlook_card_html(record: dict) -> str:
   <div class="period">{outlook.get("period", "—")}</div>
   <div class="outlook-grid">
     <div class="outlook-metric">
-      <div class="label">Days ≥30°C · ≥35°C</div>
-      <div class="value" style="color:{heat_color}">{lo:.0f} – {hi:.0f} <span style="color:{hot35_color};font-size:0.85em;">· ≥35°C {recent_hot35:.1f}</span></div>
-      <div class="sub">≥30°C median <strong>{med:.0f}</strong> · recent {recent_hot:.0f} · ≥35°C recent {recent_hot35:.1f} (baseline {base_hot35:.1f})</div>
+      <div class="label">Days ≥30°C</div>
+      <div class="value" style="color:{heat_color}">{lo:.0f} – {hi:.0f}</div>
+      <div class="sub">median <strong>{med:.0f}</strong> · recent {recent_hot:.0f}</div>
       <div class="status-pill" style="background:{heat_color}22;color:{heat_color};border-color:{heat_color}55">{heat_status}</div>
-      <div class="status-pill" style="background:{hot35_color}22;color:{hot35_color};border-color:{hot35_color}55;margin-left:0.35rem">≥35°C {hot35_status.lower()}</div>
       <div class="outlook-range">
         <span style="width:{heat_width}%; margin-left:{heat_left}%; background:{heat_color};"></span>
         <i style="left:{heat_marker}%;" title="Recent"></i>
@@ -1255,7 +1250,8 @@ def main() -> None:
     st.subheader(f"{loc['name']} · {loc.get('region', 'Serbia')}")
     st.write(headline_for(record, assessment))
 
-    m1, m2, m3, m4, m5 = st.columns(5)
+    # 3 summary metrics + a paired heat slot so ≥30°C / ≥35°C sit side by side
+    m1, m2, m3, heat = st.columns((1, 1, 1, 1.35))
     m1.metric(
         "Summer balance",
         f"{recent['summer_water_balance_mm']} mm",
@@ -1272,18 +1268,20 @@ def main() -> None:
         f"{delta(base['summer_water_demand_mm'], recent['summer_water_demand_mm']):+.0f} mm",
         delta_color="inverse",
     )
-    m4.metric(
-        "Days ≥30°C",
-        f"{recent['hot_days_30']}",
-        f"{delta(base['hot_days_30'], recent['hot_days_30']):+.1f}",
-        delta_color="inverse",
-    )
-    m5.metric(
-        "Days ≥35°C",
-        f"{recent['hot_days_35']}",
-        f"{delta(base['hot_days_35'], recent['hot_days_35']):+.1f}",
-        delta_color="inverse",
-    )
+    with heat:
+        h30, h35 = st.columns(2)
+        h30.metric(
+            "Days ≥30°C",
+            f"{recent['hot_days_30']}",
+            f"{delta(base['hot_days_30'], recent['hot_days_30']):+.1f}",
+            delta_color="inverse",
+        )
+        h35.metric(
+            "Days ≥35°C",
+            f"{recent['hot_days_35']}",
+            f"{delta(base['hot_days_35'], recent['hot_days_35']):+.1f}",
+            delta_color="inverse",
+        )
 
     left, right = st.columns((1.25, 1), gap="large")
 
