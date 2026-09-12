@@ -62,41 +62,56 @@ Heat rose at 6 of 6 pins regardless: growing degree days up 51–190, days ≥35
 
 ---
 
-## 2. The contract — agree on this BEFORE splitting
+## 2. The contract — this now exists, don't invent your own
 
-This is what lets us work in parallel without blocking. Person A produces this JSON; Person B consumes it. **Person B builds against a hardcoded fixture of this shape immediately**, without waiting for A's real implementation.
+Person A produces this; Person B consumes it. It is **already built and committed** at `data/pins.json` for all six pins, so Track B is unblocked immediately — no waiting, no fixtures.
+
+```python
+import json
+pins = json.load(open("data/pins.json", encoding="utf-8"))
+# or, for an arbitrary point:
+from agrisense.climate import build_pin
+record = build_pin({"name": "My field", "lat": 45.1, "lon": 19.9})
+```
+
+Real record, abbreviated:
 
 ```json
 {
-  "location": { "name": "Novi Sad", "lat": 45.2671, "lon": 19.8335 },
+  "location": { "name": "Novi Sad", "region": "Vojvodina", "lat": 45.2671, "lon": 19.8335 },
   "baseline": {
     "period": "1985-1994",
-    "hot_days_30": 29.4,
-    "hot_days_35": 3.5,
-    "precip_mm": 599,
-    "heavy_rain_days_20": 2.5,
-    "max_dry_streak_days": 21
+    "hot_days_30": 29.4, "hot_days_35": 3.5, "peak_temp": 39.6,
+    "longest_hot_streak_days": 8.9, "precip_mm": 599,
+    "heavy_rain_days_20": 2.5, "max_dry_streak_days": 23.5,
+    "growing_degree_days": 1679,
+    "summer_rain_mm": 187, "summer_water_demand_mm": 428,
+    "summer_water_balance_mm": -241, "summer_soil_moisture": 0.2372
   },
-  "recent": {
-    "period": "2015-2024",
-    "hot_days_30": 38.1,
-    "hot_days_35": 6.6,
-    "precip_mm": 609,
-    "heavy_rain_days_20": 2.6,
-    "max_dry_streak_days": 28
-  },
+  "recent": { "period": "2015-2024", "...": "same keys" },
   "outlook": {
-    "period": "2030-2039",
-    "hot_days_30": 44.0,
-    "precip_mm": 615,
-    "confidence": "single-model illustrative"
+    "period": "2031-2040",
+    "hot_days_30_range": [44.2, 56.9],
+    "hot_days_30_median": 51.9,
+    "precip_mm_range": [681, 709],
+    "confidence": "multi-model range, illustrative not a forecast",
+    "per_model": { "MRI_AGCM3_2_S": { "...": "full indices" } }
   },
-  "soil": { "ph": 6.8, "clay_pct": 24.0, "nitrogen_g_kg": 1.9, "source": "SoilGrids" },
-  "signals": ["heat_intensifying", "rainfall_stable", "evaporative_stress_rising"]
+  "soil": null,
+  "signals": [
+    "heat_intensifying", "annual_rainfall_stable", "crop_water_demand_rising",
+    "summer_water_deficit_worsening", "annual_totals_masking_summer_stress"
+  ]
 }
 ```
 
-**Rule:** if either of us needs to change this shape, say so immediately — it is the only hard dependency between the two tracks.
+**Notes for Track B:**
+
+- `soil` is `null` for every Serbian pin — SoilGrids is down for Europe. Use `summer_soil_moisture` (ERA5, always present) or keep manual sliders as an input, not as an output. Don't render an empty soil card.
+- `signals` is the list to drive both the UI headline and the LLM prompt. Current vocabulary: `heat_intensifying` / `heat_stable` / `heat_easing`, `annual_rainfall_stable` / `_increasing` / `_declining`, `crop_water_demand_rising`, `summer_water_deficit_worsening` / `_stable` / `_easing`, `annual_totals_masking_summer_stress`, `dry_spells_lengthening`.
+- **Timing matters.** A full `build_pin` takes 33–114 s (five API calls, throttled to dodge Open-Meteo's 429s). That is not interactive. Read `data/pins.json` for the demo; only call `build_pin` live for an off-pin location, with a spinner and a warning.
+
+**Rule:** if either of us needs to change this shape, say so immediately — it is the only hard dependency between the tracks.
 
 ---
 
@@ -104,17 +119,22 @@ This is what lets us work in parallel without blocking. Person A produces this J
 
 Timebox: **~75 minutes of investigation**, then we sync and build. Do not perfect anything in this phase; the output of each task is a yes/no plus a snippet that runs.
 
-### Track A — Data & signal (owns: is this real?)
+### Track A — Data & signal — ✅ done
 
-| Task | Deliverable | Timebox |
+| Task | Deliverable | Result |
 | --- | --- | --- |
-| A1 | Run the decade comparison for 5–6 Serbian points (Novi Sad, Subotica, Belgrade, Niš, Zrenjanin, Kraljevo). Answer Q1: does heat rise everywhere? | 20 min |
-| A2 | Pull Climate API for 2–3 different models at one point. Answer Q2: do they agree on direction? If they disagree wildly, we present **range**, not a number. | 15 min |
-| A3 | Hit SoilGrids for those same points, time each call, note failures. Answer Q3. Decide: live call, or pre-cached JSON for the demo pins. | 15 min |
-| A4 | Add dry-streak + growing-degree-days to the index calculator | 15 min |
-| A5 | Emit the section 2 JSON for all demo pins → commit as `data/pins.json` | 10 min |
+| A1 | Decade comparison across 6 Serbian points | Heat and ET0 up at 6/6; deficit worsens at 3/6 |
+| A2 | Multi-model projection spread | 3 models agree on direction, spread up to 13 days → report a range |
+| A3 | SoilGrids reliability | 0/6, Europe returns nulls → dropped, replaced with ERA5 soil moisture |
+| A4 | Index calculator | `agrisense/climate.py` — hot days, GDD, dry streaks, ET0, water balance |
+| A5 | Offline fallback | `data/pins.json`, 6 records committed |
 
-**Fallback if an API dies mid-hackathon:** A5's committed `pins.json` becomes the demo's data source. This is our insurance — do it even if everything works.
+Two methodology fixes made along the way, both worth knowing because they changed the numbers:
+
+- **Dry streaks** were being computed over the whole concatenated decade, which reports the single worst drought in ten years as if it were typical (Subotica looked like a 60-day streak). Now it averages each year's longest run — Subotica is 27.4 → 26.1 days, i.e. flat.
+- **SoilGrids** looked fine because the response carries layer names even when every value is null. Always check values, not keys.
+
+**Insurance is in place:** `data/pins.json` is committed, so the demo runs with every network call failing.
 
 ### Track B — Interface & reasoning (owns: does it land?)
 
@@ -137,19 +157,22 @@ Use these instead of searching from scratch. Status reflects what we actually kn
 
 | Candidate | Status | Notes |
 | --- | --- | --- |
-| **Open-Meteo Archive** `archive-api.open-meteo.com/v1/archive` | ✅ verified | ERA5, 1940→, no key, JSON. **Primary.** |
-| **Open-Meteo Climate** `climate-api.open-meteo.com/v1/climate` | ✅ verified | to 2050, pick `models=` explicitly |
-| Copernicus EFAS / GloFAS (flood) | ⚠️ heavy | Needs account + GRIB/NetCDF parsing. **Skip for hackathon.** |
-| EM-DAT (disaster events) | ⚠️ GraphQL + registration | Nice for pitch narrative, not for the pipeline |
-| MeteoSerbia1km (Zenodo) | 🟡 offline CSV | Backup only if Open-Meteo dies |
-| RHMZ / Digital Climate Atlas of Serbia | 🟡 no clean API | Use as credibility citation in slides |
+| **Open-Meteo Archive** `archive-api.open-meteo.com/v1/archive` | ✅ in use | ERA5, 1940→, no key. Also supplies ET0 and soil moisture. **Primary.** |
+| **Open-Meteo Climate** `climate-api.open-meteo.com/v1/climate` | ✅ in use | to 2050; pass `models=` explicitly and report the spread |
+| Copernicus EFAS / GloFAS (flood) | ⚠️ heavy | Account + GRIB/NetCDF parsing. **Skip.** |
+| EM-DAT (disaster events) | ⚠️ GraphQL + registration | Pitch narrative only, not the pipeline |
+| MeteoSerbia1km (Zenodo) | 🟡 offline CSV | Unnecessary now that `pins.json` exists |
+| RHMZ / Digital Climate Atlas of Serbia | 🟡 no clean API | Credibility citation in slides |
+
+**Rate limit warning:** Open-Meteo returns HTTP 429 on bursts. `agrisense/climate.py` paces requests 6 s apart and backs off on 429; without that, 2 of 6 pins failed.
 
 ### Soil
 
 | Candidate | Status | Notes |
 | --- | --- | --- |
-| **SoilGrids** `rest.isric.org/soilgrids/v2.0/properties/query` | ✅ verified | pH, clay, sand, nitrogen, SOC. ISRIC calls it beta — **cache results.** |
-| Kaggle soil sliders (current idea.md plan) | 🟡 fallback | Honest but fake; keep as "manual override" input |
+| **ERA5 soil moisture via Open-Meteo** | ✅ in use | `soil_moisture_0_to_7cm_mean`. Real, free, trended over decades. |
+| SoilGrids `rest.isric.org` | ❌ down for Europe | HTTP 200 with null values for Serbia and NL; Iowa works. Retry on the day in case it returns. |
+| Manual NPK/pH sliders | 🟡 keep | Now an *input* the farmer supplies, not something we claim to know |
 
 ### Crop / yield
 
@@ -181,31 +204,37 @@ Use these instead of searching from scratch. Status reflects what we actually kn
 
 ## 5. Sync point
 
-After the 75 minutes, we each answer in one line:
+**A has reported:** signal holds at 6/6 for heat and crop water demand; the summer water deficit worsens at 3/6, all in Vojvodina; projections need a range not a number; soil comes from ERA5 because SoilGrids is down; `data/pins.json` is committed as the offline path.
 
-- **A:** "Signal holds in N of 6 locations. Soil is live/cached. Projections agree/disagree."
-- **B:** "Map click works via X. Crop model is usable/replaced. LLM output is specific/generic. GEV is in/out."
+**B still to report:** "Map click works via X. Crop model is usable/replaced. LLM output is specific/generic. GEV is in/out."
 
-Then we decide together:
+Decisions left:
 1. Map or dropdown?
 2. Kaggle model or hand table?
-3. Live APIs or committed `pins.json`?
-4. GEV or Streamlit only?
+3. GEV or Streamlit only?
 
-**Default if we run out of time:** dropdown + hand table + `pins.json` + Streamlit. That combination has zero external dependencies at demo time and still tells the full story.
+Decision 3 from the original list — live APIs or cached — is **settled: cached.** A full point build takes 33–114 s, so live fetching cannot sit in the click path.
+
+**Default if we run out of time:** dropdown + hand table + `pins.json` + Streamlit. Zero external dependencies at demo time, and it still tells the whole story.
 
 ---
 
 ## 6. Build phase (after sync)
 
 ```
-[+0:00] Wire A's JSON into B's UI (contract already agreed → should be minutes)
-[+0:20] Decade comparison panel: the "rain flat, heat doubled" chart
-[+0:40] Crop + action plan panel from LLM
-[+1:00] Three scripted demo locations, screenshots taken
+[+0:00] Wire data/pins.json into B's UI (already exists → minutes)
+[+0:20] Water-balance panel: rainfall vs ET0, the "your rain gauge lies" chart
+[+0:40] Crop + action plan panel from LLM, driven by signals[]
+[+1:00] Three scripted locations, screenshots taken
 [+1:20] Fallback path tested with network off
 [+1:30] Pitch script + 60s recording
 ```
+
+**Demo running order** — the contrast is what sells it:
+
+1. **Novi Sad** — annual rainfall flat, summer deficit 57 mm worse. "Nothing looks wrong, and that's the problem."
+2. **Zrenjanin** — worst case, deficit 52 mm worse and days ≥35 °C up from 2.7 to 8.0.
+3. **Belgrade or Niš** — the counter-example. Deficit stable, Niš slightly improved. Proves the tool answers per-plot rather than printing doom everywhere.
 
 ---
 
@@ -222,12 +251,12 @@ Naming these so neither of us drifts:
 
 ## 8. Checklist
 
-**Track A**
-- [ ] A1 multi-location signal check
-- [ ] A2 model-spread check
-- [ ] A3 SoilGrids reliability + timing
-- [ ] A4 dry streak / GDD indices
-- [ ] A5 `data/pins.json` committed
+**Track A** — complete
+- [x] A1 multi-location signal check — 6/6 heat, 3/6 deficit worsening
+- [x] A2 model-spread check — range required, direction robust
+- [x] A3 SoilGrids — down for Europe, replaced with ERA5 soil moisture
+- [x] A4 indices — `agrisense/climate.py` incl. ET0 water balance
+- [x] A5 `data/pins.json` committed
 
 **Track B**
 - [ ] B1 map click or dropdown working
