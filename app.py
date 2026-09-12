@@ -199,15 +199,36 @@ div[data-testid="stPlotlyChart"],
 div[data-testid="stMap"] {
   background: linear-gradient(
     180deg,
-    rgba(255, 252, 248, 0.88) 0%,
-    rgba(255, 255, 255, 0.7) 100%
+    rgba(255, 252, 248, 0.92) 0%,
+    rgba(255, 255, 255, 0.82) 100%
   );
   border: 1px solid var(--rule);
   border-radius: 20px;
-  padding: 0.75rem;
+  padding: 0.65rem 0.7rem 0.45rem;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.75) inset,
     0 12px 32px rgba(27, 45, 36, 0.06);
+  overflow: hidden !important;
+  max-width: 100%;
+}
+
+/* Keep Vega SVG inside the white panel — no eclipse over the right column */
+[data-testid="stVegaLiteChart"] > div,
+[data-testid="stArrowVegaLiteChart"] > div,
+[data-testid="stVegaLiteChart"] canvas,
+[data-testid="stArrowVegaLiteChart"] canvas,
+[data-testid="stVegaLiteChart"] svg,
+[data-testid="stArrowVegaLiteChart"] svg {
+  max-width: 100% !important;
+}
+
+[data-testid="stHorizontalBlock"] {
+  gap: 1.35rem !important;
+  align-items: start !important;
+}
+
+[data-testid="stHorizontalBlock"] > div {
+  min-width: 0 !important; /* allow charts to shrink instead of overflowing */
 }
 
 div[data-testid="stDataFrame"] {
@@ -510,24 +531,41 @@ COLOR_BAD = "#a84840"
 COLOR_BASE = "#8fa898"
 
 
-def _status_higher_worse(recent: float, baseline: float, tol_frac: float = 0.05) -> str:
-    """Compare recent vs baseline when an increase is worse (heat, ET0, deficit magnitude)."""
-    span = max(abs(baseline), 1.0)
-    if recent > baseline + span * tol_frac:
-        return "Worse than baseline"
-    if recent < baseline - span * tol_frac:
-        return "Better than baseline"
-    return "Near baseline"
+def _gaussian_status(
+    recent: float,
+    baseline: float,
+    *,
+    higher_is_better: bool,
+    sigma_frac: float = 0.15,
+) -> str:
+    """Traffic-light vs baseline using a normal-PDF style average band.
+
+    Treat relative change as z = (recent − baseline) / σ with
+    σ ≈ sigma_frac · |baseline| (floored). The average (gold) band is the
+    high-density bulk of φ(z) — the derivative of the normal CDF — i.e.
+    |z| < 1. Tails beyond 1σ read as better/worse.
+    """
+    sigma = max(abs(baseline) * sigma_frac, 1.0)
+    z = (recent - baseline) / sigma
+    if abs(z) < 1.0:
+        return "Near baseline"
+    improved = z > 0 if higher_is_better else z < 0
+    return "Better than baseline" if improved else "Worse than baseline"
 
 
-def _status_higher_better(recent: float, baseline: float, tol_frac: float = 0.05) -> str:
-    """Compare recent vs baseline when an increase is better (summer rain, water balance)."""
-    span = max(abs(baseline), 1.0)
-    if recent > baseline + span * tol_frac:
-        return "Better than baseline"
-    if recent < baseline - span * tol_frac:
-        return "Worse than baseline"
-    return "Near baseline"
+def _status_higher_worse(recent: float, baseline: float, tol_frac: float = 0.15) -> str:
+    """Increase is worse — wide Near band (~1σ of a normal PDF)."""
+    # tol_frac kept for call-site compat; maps onto gaussian sigma_frac.
+    return _gaussian_status(
+        recent, baseline, higher_is_better=False, sigma_frac=tol_frac
+    )
+
+
+def _status_higher_better(recent: float, baseline: float, tol_frac: float = 0.15) -> str:
+    """Increase is better — wide Near band (~1σ of a normal PDF)."""
+    return _gaussian_status(
+        recent, baseline, higher_is_better=True, sigma_frac=tol_frac
+    )
 
 
 def _status_color(status: str) -> str:
@@ -542,7 +580,7 @@ def score_legend_html() -> str:
     return (
         '<div class="legend-row">'
         '<span class="legend-good">Better than baseline</span>'
-        '<span class="legend-avg">Near baseline</span>'
+        '<span class="legend-avg">Near baseline (≈1σ)</span>'
         '<span class="legend-bad">Worse than baseline</span>'
         '<span class="legend-base">Baseline</span>'
         "</div>"
@@ -558,6 +596,67 @@ def _status_scale() -> alt.Scale:
             "Worse than baseline",
         ],
         range=[COLOR_BASE, COLOR_GOOD, COLOR_AVG, COLOR_BAD],
+    )
+
+
+def _paired_bar_chart(
+    rows: list[dict],
+    *,
+    value_title: str,
+    metric_order: list[str],
+    height: int,
+    pair_gap: float = 0.34,
+    bar_size: int = 22,
+) -> alt.Chart:
+    """Baseline/Recent pairs tucked close on a clipped white panel."""
+    index = {m: i for i, m in enumerate(metric_order)}
+    # Half-gap between baseline & recent centers (<< 0.5 keeps the pair tight)
+    half = pair_gap / 2
+    for row in rows:
+        i = index[row["metric"]]
+        dx = -half if row["period"] == "Baseline" else half
+        row["x"] = i + dx
+
+    df = pd.DataFrame(rows)
+    label_expr = "[" + ", ".join(repr(m) for m in metric_order) + "][datum.value]"
+    return (
+        alt.Chart(df)
+        .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4, size=bar_size)
+        .encode(
+            x=alt.X(
+                "x:Q",
+                title=None,
+                scale=alt.Scale(domain=[-0.55, len(metric_order) - 0.45]),
+                axis=alt.Axis(
+                    values=list(range(len(metric_order))),
+                    labelExpr=label_expr,
+                    labelAngle=0,
+                    labelFontSize=12,
+                    ticks=False,
+                    domain=True,
+                    grid=False,
+                ),
+            ),
+            y=alt.Y("value:Q", title=value_title),
+            color=alt.Color("status:N", scale=_status_scale(), legend=None),
+            tooltip=[
+                alt.Tooltip("metric:N", title="Metric"),
+                alt.Tooltip("period:N", title="Period"),
+                alt.Tooltip("value:Q", title=value_title, format=".1f"),
+                alt.Tooltip("status:N", title="vs baseline"),
+            ],
+        )
+        .properties(
+            height=height,
+            padding={"left": 6, "right": 10, "top": 10, "bottom": 4},
+        )
+        .configure_axis(
+            labelColor="#3e5349",
+            titleColor="#6a7c72",
+            gridColor="rgba(27, 45, 36, 0.08)",
+            domainColor="rgba(27, 45, 36, 0.15)",
+        )
+        .configure_view(strokeWidth=0)
     )
 
 
@@ -607,35 +706,13 @@ def water_balance_chart(record: dict) -> alt.Chart:
                 "status": status,
             }
         )
-    df = pd.DataFrame(rows)
-    return (
-        alt.Chart(df)
-        .mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5, size=28)
-        .encode(
-            x=alt.X(
-                "metric:N",
-                title=None,
-                sort=["Summer rain", "Crop demand (ET0)", "Summer balance"],
-                axis=alt.Axis(labelAngle=0, labelFontSize=12),
-            ),
-            xOffset=alt.XOffset("period:N", sort=["Baseline", "Recent"]),
-            y=alt.Y("value:Q", title="mm"),
-            color=alt.Color("status:N", scale=_status_scale(), legend=None),
-            tooltip=[
-                alt.Tooltip("metric:N", title="Metric"),
-                alt.Tooltip("period:N", title="Period"),
-                alt.Tooltip("value:Q", title="mm", format=".1f"),
-                alt.Tooltip("status:N", title="vs baseline"),
-            ],
-        )
-        .properties(height=280)
-        .configure_axis(
-            labelColor="#3e5349",
-            titleColor="#6a7c72",
-            gridColor="rgba(27, 45, 36, 0.08)",
-            domainColor="rgba(27, 45, 36, 0.15)",
-        )
-        .configure_view(strokeWidth=0)
+    return _paired_bar_chart(
+        rows,
+        value_title="mm",
+        metric_order=["Summer rain", "Crop demand (ET0)", "Summer balance"],
+        height=260,
+        pair_gap=0.22,
+        bar_size=22,
     )
 
 
@@ -674,35 +751,13 @@ def heat_chart(record: dict) -> alt.Chart:
                 "status": status,
             }
         )
-    df = pd.DataFrame(rows)
-    return (
-        alt.Chart(df)
-        .mark_bar(cornerRadiusTopLeft=5, cornerRadiusTopRight=5, size=36)
-        .encode(
-            x=alt.X(
-                "metric:N",
-                title=None,
-                sort=["Days ≥30°C", "Days ≥35°C"],
-                axis=alt.Axis(labelAngle=0, labelFontSize=12),
-            ),
-            xOffset=alt.XOffset("period:N", sort=["Baseline", "Recent"]),
-            y=alt.Y("value:Q", title="days / year"),
-            color=alt.Color("status:N", scale=_status_scale(), legend=None),
-            tooltip=[
-                alt.Tooltip("metric:N", title="Metric"),
-                alt.Tooltip("period:N", title="Period"),
-                alt.Tooltip("value:Q", title="days", format=".1f"),
-                alt.Tooltip("status:N", title="vs baseline"),
-            ],
-        )
-        .properties(height=250)
-        .configure_axis(
-            labelColor="#3e5349",
-            titleColor="#6a7c72",
-            gridColor="rgba(27, 45, 36, 0.08)",
-            domainColor="rgba(27, 45, 36, 0.15)",
-        )
-        .configure_view(strokeWidth=0)
+    return _paired_bar_chart(
+        rows,
+        value_title="days / year",
+        metric_order=["Days ≥30°C", "Days ≥35°C"],
+        height=230,
+        pair_gap=0.22,
+        bar_size=26,
     )
 
 
@@ -726,12 +781,21 @@ def crop_exposure_chart(assessment: dict) -> alt.Chart:
             }
         )
     df = pd.DataFrame(rows).sort_values("score", ascending=True)
+    n = max(len(df), 1)
+    # Extra vertical room so every crop label is visible + a little gap between bars
+    row_px = 52
     return (
         alt.Chart(df)
         .mark_bar(cornerRadiusEnd=6, size=18)
         .encode(
             x=alt.X("score:Q", title="Exposure score"),
-            y=alt.Y("crop:N", sort=list(df["crop"]), title=None),
+            y=alt.Y(
+                "crop:N",
+                sort=list(df["crop"]),
+                title=None,
+                scale=alt.Scale(paddingInner=0.28, paddingOuter=0.1),
+                axis=alt.Axis(labelFontSize=13, labelLimit=180, labelPadding=8),
+            ),
             color=alt.Color(
                 "band:N",
                 scale=alt.Scale(
@@ -758,7 +822,10 @@ def crop_exposure_chart(assessment: dict) -> alt.Chart:
                 alt.Tooltip("band:N", title="Band"),
             ],
         )
-        .properties(height=max(180, 32 * len(df)))
+        .properties(
+            height=max(300, row_px * n + 48),
+            padding={"left": 4, "right": 10, "top": 8, "bottom": 4},
+        )
         .configure_axis(
             labelColor="#3e5349",
             titleColor="#6a7c72",
@@ -1123,19 +1190,19 @@ def main() -> None:
         delta_color="inverse",
     )
 
-    left, right = st.columns((1.35, 1))
+    left, right = st.columns((1.25, 1), gap="large")
 
     with left:
         st.markdown("#### Your rain gauge can lie")
         st.caption(
             "Annual totals may look stable while June–August rainfall minus ET0 worsens. "
-            "Recent bars are colored vs that pin’s own baseline."
+            "Recent colored vs this pin’s baseline — gold = within ~1σ (average span)."
         )
         st.markdown(score_legend_html(), unsafe_allow_html=True)
         st.altair_chart(water_balance_chart(record), use_container_width=True)
 
         st.markdown("#### Heat")
-        st.caption("More hot days than baseline reads as worse (red).")
+        st.caption("More hot days than baseline reads as worse (red); near stays gold.")
         st.altair_chart(heat_chart(record), use_container_width=True)
 
     with right:
