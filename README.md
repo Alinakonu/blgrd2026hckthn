@@ -54,7 +54,7 @@ Or paste the key in the sidebar field **xAI API key** (session-only, not written
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `XAI_API_KEY` / `GROK_API_KEY` | No | Enables live Grok plan (or paste in the sidebar) |
-| `XAI_MODEL` | No | Default `grok-2-latest` |
+| `XAI_MODEL` | No | Default `grok-3` (falls back if needed) |
 | `XAI_API_URL` | No | Default `https://api.x.ai/v1/chat/completions` |
 
 No keys needed for the offline happy path.

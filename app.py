@@ -886,10 +886,14 @@ def outlook_card_html(record: dict) -> str:
     rain_lo, rain_hi = outlook["precip_mm_range"]
     rain_med = outlook.get("precip_mm_median", (rain_lo + rain_hi) / 2)
     recent_hot = recent["hot_days_30"]
+    recent_hot35 = recent["hot_days_35"]
+    base_hot35 = record["baseline"]["hot_days_35"]
     recent_rain = recent["precip_mm"]
 
     heat_status = _status_higher_worse(med, recent_hot, tol_frac=0.08)
     heat_color = _status_color(heat_status)
+    hot35_status = _status_higher_worse(recent_hot35, base_hot35, tol_frac=0.08)
+    hot35_color = _status_color(hot35_status)
     rain_mid = rain_med
     rain_status = _status_higher_better(rain_mid, recent_rain, tol_frac=0.08)
     rain_color = _status_color(rain_status)
@@ -913,10 +917,11 @@ def outlook_card_html(record: dict) -> str:
   <div class="period">{outlook.get("period", "—")}</div>
   <div class="outlook-grid">
     <div class="outlook-metric">
-      <div class="label">Days ≥30°C</div>
-      <div class="value" style="color:{heat_color}">{lo:.0f} – {hi:.0f}</div>
-      <div class="sub">median <strong>{med:.0f}</strong> · recent {recent_hot:.0f}</div>
+      <div class="label">Days ≥30°C · ≥35°C</div>
+      <div class="value" style="color:{heat_color}">{lo:.0f} – {hi:.0f} <span style="color:{hot35_color};font-size:0.85em;">· ≥35°C {recent_hot35:.1f}</span></div>
+      <div class="sub">≥30°C median <strong>{med:.0f}</strong> · recent {recent_hot:.0f} · ≥35°C recent {recent_hot35:.1f} (baseline {base_hot35:.1f})</div>
       <div class="status-pill" style="background:{heat_color}22;color:{heat_color};border-color:{heat_color}55">{heat_status}</div>
+      <div class="status-pill" style="background:{hot35_color}22;color:{hot35_color};border-color:{hot35_color}55;margin-left:0.35rem">≥35°C {hot35_status.lower()}</div>
       <div class="outlook-range">
         <span style="width:{heat_width}%; margin-left:{heat_left}%; background:{heat_color};"></span>
         <i style="left:{heat_marker}%;" title="Recent"></i>
@@ -1011,6 +1016,7 @@ def offline_action_plan(record: dict, assessment: dict) -> str:
     bal_d = delta(base["summer_water_balance_mm"], recent["summer_water_balance_mm"])
     rain_d = delta(base["precip_mm"], recent["precip_mm"])
     hot_d = delta(base["hot_days_30"], recent["hot_days_30"])
+    hot35_d = delta(base["hot_days_35"], recent["hot_days_35"])
     demand_d = delta(
         base["summer_water_demand_mm"], recent["summer_water_demand_mm"]
     )
@@ -1023,7 +1029,8 @@ def offline_action_plan(record: dict, assessment: dict) -> str:
             f"{recent['summer_water_balance_mm']} mm ({recent['period']}) "
             f"({bal_d:+.0f} mm). Annual rainfall changed by {rain_d:+.0f} mm "
             f"({base['precip_mm']} → {recent['precip_mm']} mm) while summer ET0 "
-            f"rose {demand_d:+.0f} mm and days ≥30°C rose {hot_d:+.1f}."
+            f"rose {demand_d:+.0f} mm, days ≥30°C rose {hot_d:+.1f}, and "
+            f"days ≥35°C rose {hot35_d:+.1f}."
         ),
         "",
         "WHAT IT MEANS FOR YOUR CROPS",
@@ -1114,9 +1121,15 @@ def offline_action_plan(record: dict, assessment: dict) -> str:
 def resolve_xai_key() -> str | None:
     """Sidebar paste wins for the session; else env XAI_API_KEY / GROK_API_KEY."""
     keyed = (st.session_state.get("xai_api_key") or "").strip()
-    if keyed:
-        return keyed
-    return os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY") or None
+    if not keyed:
+        keyed = (os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY") or "").strip()
+    if not keyed:
+        return None
+    # Common paste accidents: quotes, Bearer prefix, trailing newline
+    keyed = keyed.strip().strip('"').strip("'")
+    if keyed.lower().startswith("bearer "):
+        keyed = keyed[7:].strip()
+    return keyed or None
 
 
 def call_grok(messages: list[dict]) -> str:
@@ -1124,25 +1137,46 @@ def call_grok(messages: list[dict]) -> str:
     if not api_key:
         raise RuntimeError("No XAI_API_KEY / GROK_API_KEY set")
 
-    model = os.environ.get("XAI_MODEL", "grok-2-latest")
+    # grok-2-latest was retired (HTTP 400 "Model not found"). Prefer grok-3.
+    preferred = os.environ.get("XAI_MODEL", "grok-3").strip()
+    candidates = [preferred]
+    for fallback in ("grok-3", "grok-3-latest", "grok-4", "grok-3-mini"):
+        if fallback not in candidates:
+            candidates.append(fallback)
+
     url = os.environ.get("XAI_API_URL", "https://api.x.ai/v1/chat/completions")
-    resp = requests.post(
-        url,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": model,
-            "messages": messages,
-            "temperature": 0.2,
-            "max_tokens": 700,
-        },
-        timeout=60,
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    return data["choices"][0]["message"]["content"].strip()
+    last_detail = ""
+    for model in candidates:
+        resp = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "messages": messages,
+                "temperature": 0.2,
+                "max_tokens": 700,
+            },
+            timeout=60,
+        )
+        if resp.ok:
+            data = resp.json()
+            return data["choices"][0]["message"]["content"].strip()
+
+        try:
+            detail = resp.json().get("error") or resp.text
+        except Exception:  # noqa: BLE001
+            detail = resp.text
+        last_detail = f"{resp.status_code}: {detail}"
+        # Retry only when the model id itself is bad
+        detail_l = str(detail).lower()
+        if resp.status_code == 400 and "model not found" in detail_l:
+            continue
+        break
+
+    raise RuntimeError(f"xAI request failed ({last_detail})")
 
 
 def main() -> None:
@@ -1221,7 +1255,7 @@ def main() -> None:
     st.subheader(f"{loc['name']} · {loc.get('region', 'Serbia')}")
     st.write(headline_for(record, assessment))
 
-    m1, m2, m3, m4 = st.columns(4)
+    m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric(
         "Summer balance",
         f"{recent['summer_water_balance_mm']} mm",
@@ -1242,6 +1276,12 @@ def main() -> None:
         "Days ≥30°C",
         f"{recent['hot_days_30']}",
         f"{delta(base['hot_days_30'], recent['hot_days_30']):+.1f}",
+        delta_color="inverse",
+    )
+    m5.metric(
+        "Days ≥35°C",
+        f"{recent['hot_days_35']}",
+        f"{delta(base['hot_days_35'], recent['hot_days_35']):+.1f}",
         delta_color="inverse",
     )
 
