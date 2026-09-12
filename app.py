@@ -38,6 +38,266 @@ st.set_page_config(
     layout="wide",
 )
 
+# Visual theme only — mirrors the SoilShift field-day look, dialed a bit cozier.
+# Does not change data, charts, or control flow.
+FIELD_DAY_CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
+
+:root {
+  --bg: #e6ede7;
+  --panel: #f4f7f4;
+  --panel-strong: #fffcf8;
+  --ink: #1b2d24;
+  --ink-soft: #3e5349;
+  --muted: #6a7c72;
+  --accent: #2f5f46;
+  --accent-ink: #f3faf5;
+  --accent-soft: #c8dccf;
+  --accent-glow: rgba(47, 95, 70, 0.18);
+  --rule: rgba(27, 45, 36, 0.11);
+  --rule-strong: rgba(27, 45, 36, 0.2);
+  --warn: #a56b28;
+  --danger: #a84840;
+  --warm-mist: rgba(255, 250, 242, 0.55);
+}
+
+html, body, [data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > .main,
+.stApp {
+  background: transparent !important;
+  color: var(--ink) !important;
+  font-family: "Figtree", "Segoe UI", sans-serif !important;
+}
+
+/* Soft morning field wash — linen mist, no neon */
+[data-testid="stAppViewContainer"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 560px at 8% 0%, rgba(180, 210, 190, 0.92), transparent 58%),
+    radial-gradient(820px 480px at 92% 8%, rgba(232, 220, 200, 0.45), transparent 55%),
+    radial-gradient(900px 520px at 50% 100%, rgba(168, 196, 176, 0.5), transparent 60%),
+    linear-gradient(180deg, #eef3ef 0%, #e6ede7 45%, #dce6de 100%);
+}
+
+[data-testid="stAppViewContainer"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+[data-testid="stHeader"] {
+  background: rgba(242, 246, 243, 0.72) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+
+[data-testid="stSidebar"] {
+  background: linear-gradient(
+    180deg,
+    rgba(244, 247, 244, 0.96) 0%,
+    rgba(255, 252, 248, 0.9) 100%
+  ) !important;
+  border-right: 1px solid var(--rule);
+}
+
+[data-testid="stSidebar"] > div:first-child {
+  background: transparent !important;
+}
+
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+  font-family: "Fraunces", Georgia, serif !important;
+  color: var(--ink) !important;
+  letter-spacing: -0.02em;
+}
+
+.main .block-container {
+  padding-top: 1.75rem;
+  padding-bottom: 3rem;
+  max-width: 1180px;
+}
+
+h1, h2, h3, h4, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
+  font-family: "Fraunces", Georgia, serif !important;
+  color: var(--ink) !important;
+  letter-spacing: -0.03em;
+  font-weight: 600 !important;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 5vw, 3.4rem) !important;
+  line-height: 0.95 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.stCaption, [data-testid="stCaption"], small {
+  color: var(--muted) !important;
+  font-family: "Figtree", sans-serif !important;
+}
+
+p, li, label, .stMarkdown, .stText {
+  color: var(--ink-soft) !important;
+  line-height: 1.55;
+}
+
+/* Soft field cards around metric blocks */
+div[data-testid="stMetric"] {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 252, 248, 0.92) 0%,
+    rgba(255, 255, 255, 0.72) 100%
+  );
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 1rem 1.05rem 0.85rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 12px 30px rgba(27, 45, 36, 0.07);
+}
+
+div[data-testid="stMetric"] label {
+  color: var(--muted) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem !important;
+}
+
+div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+  font-family: "Fraunces", Georgia, serif !important;
+  color: var(--ink) !important;
+  font-weight: 600;
+}
+
+div[data-testid="stMetric"] [data-testid="stMetricDelta"] svg {
+  display: none;
+}
+
+/* Charts / map / tables sit on soft panels */
+[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stDataFrame"],
+div[data-testid="stDeckGlJsonChart"],
+div[data-testid="stArrowVegaLiteChart"],
+iframe[title="streamlit_keplergl.st_keplergl"] {
+  border-radius: 18px !important;
+}
+
+[data-testid="stVegaLiteChart"],
+[data-testid="stArrowVegaLiteChart"],
+div[data-testid="stPlotlyChart"],
+div[data-testid="stMap"] {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 252, 248, 0.88) 0%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 0.75rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 12px 32px rgba(27, 45, 36, 0.06);
+}
+
+div[data-testid="stDataFrame"] {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 252, 248, 0.9) 0%,
+    rgba(255, 255, 255, 0.78) 100%
+  );
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 0.45rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 12px 32px rgba(27, 45, 36, 0.05);
+}
+
+/* Alerts — soft, not loud */
+div[data-testid="stAlert"] {
+  border-radius: 16px !important;
+  border: 1px solid var(--rule) !important;
+  box-shadow: 0 8px 22px rgba(27, 45, 36, 0.05);
+  background: var(--warm-mist) !important;
+}
+
+/* Buttons */
+.stButton > button {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  font-family: "Figtree", sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  padding: 0.55rem 1.25rem !important;
+  box-shadow: 0 8px 20px var(--accent-glow);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.stButton > button:hover {
+  background: #264d39 !important;
+  transform: translateY(-1px);
+}
+
+.stButton > button[kind="secondary"] {
+  background: rgba(255, 255, 255, 0.7) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--rule-strong) !important;
+  box-shadow: none !important;
+}
+
+/* Inputs / selects */
+.stSelectbox div[data-baseweb="select"] > div,
+.stTextInput input,
+.stNumberInput input {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border-radius: 12px !important;
+  border-color: var(--rule-strong) !important;
+  color: var(--ink) !important;
+}
+
+/* Toggles & dividers */
+hr {
+  border-color: var(--rule) !important;
+}
+
+[data-testid="stExpander"] {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+}
+
+/* Code blocks in debug expander */
+.stCode {
+  border-radius: 14px !important;
+}
+
+/* Soften default link color */
+a { color: var(--accent) !important; }
+
+/* Sidebar pitch list breathing room */
+[data-testid="stSidebar"] .stMarkdown p {
+  line-height: 1.65;
+}
+</style>
+"""
+
+
+def apply_field_day_theme() -> None:
+    """Inject SoilShift-inspired cozy field-day CSS. Presentation only."""
+    st.markdown(FIELD_DAY_CSS, unsafe_allow_html=True)
+
 
 @st.cache_data
 def load_pins() -> list[dict]:
@@ -255,6 +515,8 @@ def call_grok(messages: list[dict]) -> str:
 
 
 def main() -> None:
+    apply_field_day_theme()
+
     pins = load_pins()
     names_present = {p["location"]["name"] for p in pins}
     ordered = [n for n in DEMO_ORDER if n in names_present]
