@@ -1,0 +1,88 @@
+{
+  "parcels": {
+    "vojvodina-maize": {
+      "soil": {
+        "ph": 7.1,
+        "socGPerKg": 18.4,
+        "clayPct": 28,
+        "sandPct": 32,
+        "siltPct": 40,
+        "textureLabel": "Clay loam (chernozem-like)",
+        "source": "fixture:cached SoilGrids-style snapshot"
+      },
+      "baseline": {
+        "meanTempC": 11.8,
+        "precipMmYear": 620,
+        "hotDaysApprox": 18
+      },
+      "projected": {
+        "2030s": {
+          "meanTempC": 13.1,
+          "precipMmYear": 590,
+          "hotDaysApprox": 32
+        },
+        "2050s": {
+          "meanTempC": 14.4,
+          "precipMmYear": 555,
+          "hotDaysApprox": 48
+        }
+      }
+    },
+    "banat-wheat": {
+      "soil": {
+        "ph": 7.4,
+        "socGPerKg": 14.2,
+        "clayPct": 34,
+        "sandPct": 26,
+        "siltPct": 40,
+        "textureLabel": "Silty clay loam",
+        "source": "fixture:cached SoilGrids-style snapshot"
+      },
+      "baseline": {
+        "meanTempC": 11.5,
+        "precipMmYear": 560,
+        "hotDaysApprox": 22
+      },
+      "projected": {
+        "2030s": {
+          "meanTempC": 12.9,
+          "precipMmYear": 520,
+          "hotDaysApprox": 38
+        },
+        "2050s": {
+          "meanTempC": 14.2,
+          "precipMmYear": 480,
+          "hotDaysApprox": 55
+        }
+      }
+    },
+    "srem-sunflower": {
+      "soil": {
+        "ph": 6.8,
+        "socGPerKg": 16.0,
+        "clayPct": 24,
+        "sandPct": 38,
+        "siltPct": 38,
+        "textureLabel": "Loam",
+        "source": "fixture:cached SoilGrids-style snapshot"
+      },
+      "baseline": {
+        "meanTempC": 12.0,
+        "precipMmYear": 650,
+        "hotDaysApprox": 16
+      },
+      "projected": {
+        "2030s": {
+          "meanTempC": 13.2,
+          "precipMmYear": 625,
+          "hotDaysApprox": 28
+        },
+        "2050s": {
+          "meanTempC": 14.5,
+          "precipMmYear": 590,
+          "hotDaysApprox": 42
+        }
+      }
+    }
+  }
+}

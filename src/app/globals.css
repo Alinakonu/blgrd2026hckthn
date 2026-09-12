@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f3efe4;
+  --panel: #faf7f0;
+  --panel-muted: #ebe4d4;
+  --map-wash: #dfe8dc;
+  --ink: #1c2a1a;
+  --ink-soft: #3a4a36;
+  --muted: #6b7564;
+  --accent: #2f6b3a;
+  --accent-ink: #f4faf4;
+  --rule: #d5cdba;
+  --rule-strong: #b7ae98;
+  --warn: #9a6b1f;
+  --danger: #8b2e2e;
+  --danger-wash: #f6e6e4;
+  --background: var(--bg);
+  --foreground: var(--ink);
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #d9e5c8 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #e7d7b8 0%, transparent 50%),
+    linear-gradient(180deg, #f6f2e8 0%, var(--bg) 40%, #e8e2d2 100%);
+  font-family: var(--font-sans), "Source Sans 3", sans-serif;
+  min-height: 100vh;
+}
+
+.hero-wash {
+  background:
+    linear-gradient(135deg, rgba(47, 107, 58, 0.12), transparent 45%),
+    linear-gradient(180deg, rgba(28, 42, 26, 0.04), transparent 70%),
+    repeating-linear-gradient(
+      -12deg,
+      transparent,
+      transparent 18px,
+      rgba(28, 42, 26, 0.03) 18px,
+      rgba(28, 42, 26, 0.03) 19px
+    );
+  animation: wash-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes wash-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, -8px, 0) scale(1.02);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.45s ease-out both;
+}
+
+/* Leaflet attribution stays readable on our cream ground */
+.leaflet-container {
+  font: inherit;
+  background: var(--map-wash);
+}
