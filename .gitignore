@@ -3,3 +3,11 @@ __pycache__/
 .venv/
 venv/
 .env
+.env.local
+.streamlit/secrets.toml
+
+# leftover from other branch experiments — do not commit
+node_modules/
+.next/
+next-env.d.ts
+tsconfig.tsbuildinfo
